@@ -31,7 +31,7 @@
                             <img src="./logo.svg" class="me-2" width="50px" height="50px">
                             <span class="fs-5" style="margin-left: -20px; margin-top: -5px;">Task Logger</span>
                         </a>
-                        <hr>
+                        <br>
                         <ul class="nav nav-pills flex-column mb-auto">
                             <li class="nav-item">
                                 <a href="#" class="nav-link active" aria-current="page">
@@ -352,8 +352,17 @@
                                     generateTags( tag.find( '.dropdown-menu' ), task.id, task.tag, function(){
                                         tag.find( `[value="${task.tag}"]` ).attr( 'checked', true ).change();
                                     });
+
+                                    var editableStart = $( '<div class="editable" tabindex="0">' );
                                     var start_raw = $('<input type="datetime-local" step="1" name="start_raw" class="form-control border-0">').val( formatDateTime(task.start*1000) );
+                                    editableStart.append( start_raw );
+                                    editableStart.append( `<span class="time">${new Date(task.start * 1000).toLocaleTimeString()}</span>` );
+
+                                    var editableEnd = $( '<div class="editable" tabindex="0">' );
                                     var end_raw = $('<input type="datetime-local" step="1" name="end_raw" class="form-control border-0">').val( formatDateTime(task.end*1000) );
+                                    editableEnd.append( end_raw );
+                                    editableEnd.append( `<span class="time">${new Date(task.end * 1000).toLocaleTimeString()}</span>` );
+                                    
                                     var start = $('<input type="hidden" name="start">').val( task.start );
                                     var end = $('<input type="hidden" name="end">').val( task.end );
                                     var total = $('<span id="timer">').text( formatElapsedTime(seconds) );
@@ -389,9 +398,9 @@
                                         .append( description )
                                         .append( descriptionBtn )
                                         .append( tag )
-                                        .append( start_raw )
+                                        .append( editableStart )
                                         .append( ' - ' )
-                                        .append( end_raw )
+                                        .append( editableEnd )
                                         .append( total )
                                         .append( deleteBtn )
                                         .append( start )
@@ -598,6 +607,24 @@
             }
             .min-w- {
                 min-width: 1px;
+            }
+            .editable {
+                position: relative;
+                display: inline-block;
+            }
+
+            input[type="datetime-local"] {
+                display: none;
+            }
+
+            .editable:focus input[type="datetime-local"],
+            .editable input[type="datetime-local"]:focus {
+                display: inline-block;
+            }
+
+            .editable:focus span,
+            .editable input[type="datetime-local"]:focus + span {
+                display: none;
             }
         </style>
 
