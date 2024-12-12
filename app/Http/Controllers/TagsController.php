@@ -4,12 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Tags;
 use Illuminate\Http\Request;
+use Redirect;
 
 class TagsController extends Controller {
-    public function list( Request $request ) {
-        $data = Tags::get( ['ID','tag','color']);
 
-        return response()->json( $data );
+    public function index( Request $request ) {
+        return response()->json(self::list());
+    }
+    
+    public static function list() {
+        $data = Tags::get( ['ID','tag','color']);
+        return $data;
     }
 
     public function create( Request $request ) {
@@ -17,13 +22,13 @@ class TagsController extends Controller {
 
         $id = Tags::create( $data );
 
-        return response()->json([$id]);
+        return Redirect::route( 'home' );
     }
 
     public function delete( Request $request, $id ) {
         Tags::find( $id )->delete();
 
-        return response()->json([$id]);
+        return Redirect::route( 'home' );
     }
 
     public function update( Request $request, $id ) {
@@ -31,6 +36,6 @@ class TagsController extends Controller {
 
         Tags::find($id)->update( $data );
 
-        return response()->json($id);
+        return Redirect::route( 'home' );
     }
 }

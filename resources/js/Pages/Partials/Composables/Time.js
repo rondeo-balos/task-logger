@@ -5,6 +5,25 @@ export function FormatElapsedTime(seconds) {
     return `${hrs}:${mins}:${secs}`;
 };
 
+export function ParseDateTimeLocalToSeconds(dateTimeLocal) {
+    // Parse the datetime-local string into a Date object
+    const date = new Date(dateTimeLocal);
+    // Convert the Date object to milliseconds since the Unix epoch and then to seconds
+    return Math.floor(date.getTime() / 1000);
+}
+
+export function FormatDateTime(timestamp) {
+    var date = new Date(timestamp);
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    var hours = String(date.getHours()).padStart(2, '0');
+    var minutes = String(date.getMinutes()).padStart(2, '0');
+    var seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
+
 // Function to convert numeric day to day name or special cases (Today, Yesterday)
 export function GetDayName(day) {
     // Create a new Date object for the current month and year, and set the day

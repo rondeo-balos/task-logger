@@ -4,12 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Notes;
 use Illuminate\Http\Request;
+use Redirect;
 
 class NotesController extends Controller {
-    public function list( Request $request ) {
-        $data = Notes::orderBy( 'ID' )->get();
 
-        return response()->json( $data );
+    public function index( Request $request ) {
+        return response()->json(self::list());
+    }
+    
+    public static function list() {
+        $data = Notes::orderBy( 'ID' )->get();
+        return $data;
     }
 
     public function create( Request $request ) {
@@ -17,13 +22,13 @@ class NotesController extends Controller {
 
         $id = Notes::create( $data );
 
-        return response()->json([$id]);
+        return Redirect::route( 'home' );
     }
 
     public function delete( Request $request, $id ) {
         Notes::find( $id )->delete();
 
-        return response()->json([$id]);
+        return Redirect::route( 'home' );
     }
 
     public function update( Request $request, $id ) {
@@ -31,6 +36,6 @@ class NotesController extends Controller {
 
         Notes::find($id)->update( $data );
 
-        return response()->json($id);
+        return Redirect::route( 'home' );
     }
 }

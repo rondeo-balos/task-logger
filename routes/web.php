@@ -4,29 +4,19 @@ use App\Http\Controllers\NotesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TasksController;
+use App\Models\Tags;
 use App\Models\Tasks;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    $data = Tasks::whereBetween('start', [strtotime(date('Y-m-01')), strtotime(date('Y-m-t'))])->orderByDesc( 'start' )->get();
+    $tags = TagsController::list();
+    $tasks = TasksController::list();
 
-    if($data) {
-        $data = $data->groupBy( function($task) {
-            $date = Carbon::parse($task->start);
-            return $date->format('W');
-        });
-        $data = $data->map( function($group) {
-            return $group->groupBy( function($task) {
-                $date = Carbon::parse($task->start);
-                return $date->format('d');
-            });
-        });
-    }
     return Inertia::render('Welcome', [
-        'tasks' => $data
+        'tags' => $tags,
+        'tasks' => $tasks
     ]);
 })->name( 'home' );
 
@@ -42,17 +32,17 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/api/tasks', [TasksController::class, 'list']);
-Route::post('/api/tasks', [TasksController::class, 'create']);
-Route::delete('/api/tasks/{id}', [TasksController::class, 'delete']);
-Route::post('/api/tasks/{id}', [TasksController::class, 'update']);
+Route::get('/api/tasks', [TasksController::class, 'index'])->name('tasks');
+Route::post('/api/tasks', [TasksController::class, 'create'])->name('tasks.create');
+Route::delete('/api/tasks/{id}', [TasksController::class, 'delete'])->name('tasks.delete');
+Route::post('/api/tasks/{id}', [TasksController::class, 'update'])->name('tasks.update');
 
-Route::get('/api/notes', [NotesController::class, 'list']);
-Route::post('/api/notes', [NotesController::class, 'create']);
-Route::delete('/api/notes/{id}', [NotesController::class, 'delete']);
-Route::post('/api/notes/{id}', [NotesController::class, 'update']);
+Route::get('/api/notes', [NotesController::class, 'index'])->name('notes');
+Route::post('/api/notes', [NotesController::class, 'create'])->name('notes.create');
+Route::delete('/api/notes/{id}', [NotesController::class, 'delete'])->name('notes.delete');
+Route::post('/api/notes/{id}', [NotesController::class, 'update'])->name('notes.update');
 
-Route::get('/api/tags', [TagsController::class, 'list']);
-Route::post('/api/tags', [TagsController::class, 'create']);
-Route::delete('/api/tags/{id}', [TagsController::class, 'delete']);
-Route::post('/api/tags/{id}', [TagsController::class, 'update']);
+Route::get('/api/tags', [TagsController::class, 'index'])->name('tags');
+Route::post('/api/tags', [TagsController::class, 'create'])->name('tags.create');
+Route::delete('/api/tags/{id}', [TagsController::class, 'delete'])->name('tags.delete');
+Route::post('/api/tags/{id}', [TagsController::class, 'update'])->name('tags.update');

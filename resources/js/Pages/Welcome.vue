@@ -1,10 +1,10 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import Sidebar from './Partials/Sidebar.vue';
 import TaskForm from './Partials/TaskForm.vue';
 import TaskList from './Partials/TaskList.vue';
 
-defineProps([ 'tasks' ]);
+const props = defineProps([ 'tasks', 'tags' ]);
 </script>
 
 <template>
@@ -19,8 +19,8 @@ defineProps([ 'tasks' ]);
             
             <!-- Main content -->
             <div class="w-full p-5">
-                <TaskForm />
-                <TaskList :tasks="tasks" />
+                <TaskForm :tags="tags" @reload="fetchData" />
+                <TaskList :tasks="tasks" :tags="tags" />
             </div>
 
         </div>
