@@ -4,7 +4,7 @@ import { ListBulletIcon, PlusCircleIcon } from '@heroicons/vue/24/solid';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import { router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { FormatDateTime, ParseDateTimeLocalToSeconds } from './Composables/Time';
+import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
 
 const props = defineProps([ 'task', 'tags' ]);
 
@@ -78,6 +78,7 @@ const removeDescription = (index) => {
         <input type="datetime-local" step="1" @change="handleDateTimeUpdate('start', start)" ref="start" class="bg-transparent border-1 rounded m-1 ring-0" :value="FormatDateTime(updateTask.start*1000)">
         -
         <input type="datetime-local" step="1" @change="handleDateTimeUpdate('end', end)" ref="end" class="bg-transparent border-1 rounded m-1 ring-0" :value="FormatDateTime(updateTask.end*1000)">
+        <span class="mx-2">{{ FormatElapsedTime(updateTask.end - updateTask.start) }}</span>
         <button type="button" @click="handleDelete" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
     </div>
 
