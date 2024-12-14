@@ -1,4 +1,5 @@
 {
+    "name": "task-logger",
     "private": true,
     "type": "module",
     "scripts": {
