@@ -15,6 +15,10 @@ class TasksController extends Controller {
     
     public static function list() {
         $data = Tasks::whereBetween('start', [strtotime(date('Y-m-01')), strtotime(date('Y-m-t'))])->orderByDesc( 'start' )->get();
+        
+        $dailyTotals = [];
+        $weeklyTotals = [];
+        $monthlyTotal = 0;
 
         if($data) {
             // Group by week
@@ -33,9 +37,40 @@ class TasksController extends Controller {
                     return $dayTasks->keyBy('id');
                 });;
             });
+
+            // Calculate daily, weekly, and monthly totals
+            foreach ($data as $week => $days) {
+                $weeklyTotal = 0;
+
+                foreach ($days as $day => $tasks) {
+                    // Calculate the total duration for this day
+                    $dailyTotal = $tasks->sum(function ($task) {
+                        return $task->end - $task->start;
+                    });
+
+                    // Store daily total
+                    $dailyTotals[$day] = $dailyTotal;
+
+                    // Add to weekly total
+                    $weeklyTotal += $dailyTotal;
+                }
+
+                // Store weekly total
+                $weeklyTotals[$week] = $weeklyTotal;
+
+                // Add to monthly total
+                $monthlyTotal += $weeklyTotal;
+            }
         }
         
-        return $data;
+        return [
+            'data' => $data,
+            'total' => [
+                'daily' => $dailyTotals,
+                'weekly' => $weeklyTotals,
+                'monthly' => $monthlyTotal
+            ]
+        ];
     }
 
     public function create( Request $request ) {

@@ -4,7 +4,7 @@ import Sidebar from './Partials/Sidebar.vue';
 import TaskForm from './Partials/TaskForm.vue';
 import TaskList from './Partials/TaskList.vue';
 
-const props = defineProps([ 'tasks', 'tags' ]);
+const props = defineProps([ 'tasks', 'tags', 'total' ]);
 </script>
 
 <template>
@@ -20,7 +20,7 @@ const props = defineProps([ 'tasks', 'tags' ]);
             <!-- Main content -->
             <div class="w-full p-5">
                 <TaskForm :tags="tags" />
-                <TaskList :tasks="tasks" :tags="tags" />
+                <TaskList :tasks="tasks" :tags="tags" :total="total" />
             </div>
 
         </div>

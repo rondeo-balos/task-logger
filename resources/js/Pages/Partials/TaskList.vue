@@ -4,28 +4,12 @@ import { FormatElapsedTime, WeekRange } from './Composables/Time';
 import { GetDayName } from './Composables/Time';
 import { reactive, ref, toRef } from 'vue';
 
-const props = defineProps([ 'tasks', 'tags' ]);
-
-const total = reactive({});
-
-// Calculate totals dynamically
-const initializeTotals = () => {
-    Object.keys(props.tasks).forEach(week => {
-        Object.keys(props.tasks[week]).forEach(day => {
-            total[day] = 0; // Initialize totals for each day
-        });
-    });
-};
-// Initialize totals when the component is mounted
-initializeTotals();
-
-// Update total for a specific day
-const updateDayTotal = (day, duration) => {
-    total[day] += duration;
-};
+const props = defineProps([ 'tasks', 'tags', 'total' ]);
 </script>
 
 <template>
+
+    <h1 class="text-center font-black text-gray-500 text-4xl">This month's total: {{ FormatElapsedTime(total.monthly) }}</h1>
 
     <div class="flex flex-col-reverse text-white">
 
@@ -33,18 +17,18 @@ const updateDayTotal = (day, duration) => {
 
             <div class="p-2 py-1 flex flex-row items-center justify-between mt-8">
                 <b>{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</b>
-                <span>Weekly Total: <b>{{  }}</b></span>
+                <span>Weekly Total: <b>{{ FormatElapsedTime(total.weekly[week]) }}</b></span>
             </div>
 
             <div class="flex flex-col-reverse">
                 <div v-for="(dayData, day) in weekData" class="my-3 border rounded-lg divide-y border-gray-600 divide-gray-600 shadow-xl">
                     <div class="p-2 bg-[#353a40] flex flex-row items-center justify-between rounded-t-lg">
                         <b>{{ GetDayName(day) }}</b>
-                        <span>Total: <b>{{ FormatElapsedTime(total[day]) }}</b></span>
+                        <span>Total: <b>{{ FormatElapsedTime(total.daily[day]) }}</b></span>
                     </div>
                     <div class="flex flex-col-reverse">
                         <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-gray-600 hover:bg-[#32353a]">
-                            <Task :task="task" :tags="tags" v-model="total[day]" @update="updateDayTotal(day, $event)" />
+                            <Task :task="task" :tags="tags" />
                         </div>
                     </div>
                 </div>

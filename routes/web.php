@@ -16,7 +16,8 @@ Route::get('/', function () {
 
     return Inertia::render('Welcome', [
         'tags' => $tags,
-        'tasks' => $tasks
+        'tasks' => $tasks['data'],
+        'total' => $tasks['total']
     ]);
 })->name( 'home' );
 

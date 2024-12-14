@@ -12,11 +12,10 @@ const props = defineProps([ 'task', 'tags' ]);
 const id = props.task.id;
 
 // Emit event to notify the parent of a time update
-const emit = defineEmits(['update']);
-
+const emit = defineEmits(['total-update']);
 // Calculate task duration and notify parent
 const taskDuration = props.task.end - props.task.start;
-emit('update', taskDuration);
+emit('total-update', taskDuration);
 
 const updateTask = useForm({
     title: props.task.title,
@@ -30,6 +29,7 @@ const handleUpdate = () => {
     updateTask.post( route('tasks.update', [id]), {
         onSuccess: page => {
             //router.reload();
+            emit('total-update', (updateTask.end - updateTask.start) - taskDuration);
         }
     });
 };
@@ -45,7 +45,6 @@ const handleDelete = () => {
 }
 const start = ref(FormatDateTime(props.task.start*1000));
 const end = ref(FormatDateTime(props.task.end*1000));
-console.log(start.value);
 
 const handleDateTimeUpdateStart = () => {
     updateTask.start = ParseDateTimeLocalToSeconds(start.value);
