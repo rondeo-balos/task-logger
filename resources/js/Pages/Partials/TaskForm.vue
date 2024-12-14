@@ -65,7 +65,7 @@ const removeDescription = (index) => {
 </script>
 
 <template>
-    <div class="border border-gray-600 mb-5 bg-[#27272f] p-2 text-white shadow-xl sticky top-2 z-[100]">
+    <div class="border border-gray-600 mb-5 bg-[#27272f] p-2 text-white shadow-xl sticky top-0 z-[100]">
         <form @submit.prevent="submitTask" class="flex flex-row justify-between items-center gap-5">
             <div class="flex-grow">
                 <input type="text" v-model="newTasks.title" class="bg-transparent p-2 w-full border-0 focus:ring-0 ring-0" placeholder="What are you working on?" required />
