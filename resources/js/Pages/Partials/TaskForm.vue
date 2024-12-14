@@ -65,10 +65,10 @@ const removeDescription = (index) => {
 </script>
 
 <template>
-    <div class="border border-gray-600 mb-5 bg-[#2b3034] p-2 text-white sticky top-0 z-[100]">
+    <div class="border border-gray-600 mb-5 bg-[#27272f] p-2 text-white shadow-xl sticky top-2 z-[100]">
         <form @submit.prevent="submitTask" class="flex flex-row justify-between items-center gap-5">
             <div class="flex-grow">
-                <input type="text" v-model="newTasks.title" class="bg-[#212429] p-2 w-full" placeholder="What are you working on?" required />
+                <input type="text" v-model="newTasks.title" class="bg-transparent p-2 w-full border-0 focus:ring-0 ring-0" placeholder="What are you working on?" required />
             </div>
             <button type="button" @click="openDescription = true">
                 <ListBulletIcon class="size-6" />
@@ -81,7 +81,7 @@ const removeDescription = (index) => {
     </div>
 
     <Modal :show="openDescription" @close="openDescription = false">
-        <div class="divide-y">
+        <div class="divide-y divide-gray-400">
             <h2 class="text-lg font-medium p-6" >
                 What did you do?
             </h2>

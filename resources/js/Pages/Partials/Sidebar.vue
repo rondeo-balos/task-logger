@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col p-3 text-white bg-[#2b3034] shadow-xl sticky top-0 h-screen">
+    <div class="flex flex-col p-3 text-white bg-[#27272f] shadow-xl sticky top-0 h-screen">
         <a href="/" class="flex items-center mb-5">
             <img src="/logo.svg" class="me-2" width="50px" height="50px">
             <span class="font-bold -ms-5">Task Logger</span>

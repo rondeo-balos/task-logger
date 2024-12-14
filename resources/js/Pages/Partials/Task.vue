@@ -1,7 +1,6 @@
 <script setup>
 import Modal from '@/Components/Modal.vue';
-import { ListBulletIcon, PlusCircleIcon } from '@heroicons/vue/24/solid';
-import { TrashIcon } from '@heroicons/vue/24/outline';
+import { ListBulletIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
@@ -83,8 +82,8 @@ const removeDescription = (index) => {
         <vue-tailwind-datepicker v-model="start" as-single @update:model-value="handleDateTimeUpdateStart" input-classes="bg-transparent border-1 rounded m-1 ring-0" class="max-w-[338px]" />
         <span class="max-w-10 text-center w-full">-</span>
         <vue-tailwind-datepicker v-model="end" as-single @update:model-value="handleDateTimeUpdateEnd" input-classes="bg-transparent border-1 rounded m-1 ring-0" class="max-w-[338px]" />
-        <span class="mx-2 min-w-24 text-center font-bold text-blue-600">{{ FormatElapsedTime(updateTask.end - updateTask.start) }}</span>
-        <button type="button" @click="handleDelete" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1" ><TrashIcon class="size-6" /></button>
+        <span class="mx-2 min-w-24 text-center font-bold text-[#81A1C1]">{{ FormatElapsedTime(updateTask.end - updateTask.start) }}</span>
+        <button type="button" @click="handleDelete" class="p-2 px-3 text-red-500 hover:text-red-600 flex flex-row gap-1" ><TrashIcon class="size-6" /></button>
     </div>
 
     <Modal :show="openDescription" @close="openDescription = false">

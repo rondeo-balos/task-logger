@@ -22,12 +22,12 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
 
             <div class="flex flex-col-reverse">
                 <div v-for="(dayData, day) in weekData" class="my-3 border rounded-lg divide-y border-gray-600 divide-gray-600 shadow-xl">
-                    <div class="p-2 bg-[#353a40] flex flex-row items-center justify-between rounded-t-lg">
+                    <div class="p-2 bg-[#27272f] flex flex-row items-center justify-between rounded-t-lg">
                         <b>{{ GetDayName(day) }}</b>
                         <span>Total: <b>{{ FormatElapsedTime(total.daily[day]) }}</b></span>
                     </div>
                     <div class="flex flex-col-reverse">
-                        <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-gray-600 hover:bg-[#32353a]">
+                        <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-gray-600 bg-[#393943] hover:bg-[#4C566A]">
                             <Task :task="task" :tags="tags" />
                         </div>
                     </div>

@@ -10,7 +10,7 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
 <template>
     <Head title="Welcome" />
 
-    <div class="bg-[#212429] min-h-screen">
+    <div class="bg-[#434250] min-h-screen">
         <div class="flex flex-row content-evenly">
             
             <div class="w-64">
