@@ -5,6 +5,7 @@ import { TrashIcon } from '@heroicons/vue/24/outline';
 import { ref } from 'vue';
 import { FormatElapsedTime } from './Composables/Time';
 import Modal from '@/Components/Modal.vue';
+import TagSelector from '@/Components/TagSelector.vue';
 
 const emit = defineEmits(['reload']);
 
@@ -72,9 +73,7 @@ const removeDescription = (index) => {
             <button type="button" @click="openDescription = true">
                 <ListBulletIcon class="size-6" />
             </button>
-            <select class="bg-[#212429] group-hover:bg-[#32353a] border-0 cursor-pointer" v-model="newTasks.tag">
-                <option v-for="tag in tags" :value="tag.id">{{ tag.tag }}</option>
-            </select>
+            <TagSelector :tags="tags" v-model="newTasks.tag"/>
             <span class="font-extrabold px-5">{{ timer }}</span>
             <button v-show="!isStarting" type="button" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1" @click="startTask"><PlayIcon class="size-6" /> Start</button>
             <button v-show="isStarting" type="submit" class="p-2 px-3 bg-red-700 hover:bg-red-600 flex flex-row gap-1"><StopIcon class="size-6" /> Stop</button>

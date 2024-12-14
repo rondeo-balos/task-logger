@@ -37,13 +37,13 @@ const updateDayTotal = (day, duration) => {
             </div>
 
             <div class="flex flex-col-reverse">
-                <div v-for="(dayData, day) in weekData" class="my-3 border rounded-lg divide-y border-gray-600 divide-gray-600 overflow-hidden shadow-xl">
-                    <div class="p-2 bg-[#353a40] flex flex-row items-center justify-between">
+                <div v-for="(dayData, day) in weekData" class="my-3 border rounded-lg divide-y border-gray-600 divide-gray-600 shadow-xl">
+                    <div class="p-2 bg-[#353a40] flex flex-row items-center justify-between rounded-t-lg">
                         <b>{{ GetDayName(day) }}</b>
                         <span>Total: <b>{{ FormatElapsedTime(total[day]) }}</b></span>
                     </div>
                     <div class="flex flex-col-reverse">
-                        <div v-for="task in dayData" :key="task.id" class="first:border-0 border-b border-gray-600">
+                        <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-gray-600 hover:bg-[#32353a]">
                             <Task :task="task" :tags="tags" v-model="total[day]" @update="updateDayTotal(day, $event)" />
                         </div>
                     </div>

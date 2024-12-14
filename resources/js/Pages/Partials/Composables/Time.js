@@ -21,7 +21,7 @@ export function FormatDateTime(timestamp) {
     var minutes = String(date.getMinutes()).padStart(2, '0');
     var seconds = String(date.getSeconds()).padStart(2, '0');
 
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 // Function to convert numeric day to day name or special cases (Today, Yesterday)

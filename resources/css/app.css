@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --primary: #0d6efd;
+    --primary-emphasis: #6ea8fe;
+    --secondary: #6c757d;
+    --secondary-emphasis: #a7acb1;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --info: #0dcaf0;
+    --success: #198754;
+}

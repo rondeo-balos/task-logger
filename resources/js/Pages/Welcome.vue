@@ -19,7 +19,7 @@ const props = defineProps([ 'tasks', 'tags' ]);
             
             <!-- Main content -->
             <div class="w-full p-5">
-                <TaskForm :tags="tags" @reload="fetchData" />
+                <TaskForm :tags="tags" />
                 <TaskList :tasks="tasks" :tags="tags" />
             </div>
 

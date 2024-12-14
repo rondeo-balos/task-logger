@@ -5,8 +5,11 @@ import { TrashIcon } from '@heroicons/vue/24/outline';
 import { router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
+import VueTailwindDatepicker from "vue-tailwind-datepicker";
+import TagSelector from '@/Components/TagSelector.vue';
 
 const props = defineProps([ 'task', 'tags' ]);
+const id = props.task.id;
 
 // Emit event to notify the parent of a time update
 const emit = defineEmits(['update']);
@@ -24,7 +27,7 @@ const updateTask = useForm({
 });
 
 const handleUpdate = () => {
-    updateTask.post( route('tasks.update', [props.task.id]), {
+    updateTask.post( route('tasks.update', [id]), {
         onSuccess: page => {
             //router.reload();
         }
@@ -33,18 +36,23 @@ const handleUpdate = () => {
 
 const handleDelete = () => {
     if( confirm('Are you sure?') ) {
-        router.delete( route('tasks.delete', [props.task.id]), {
+        router.delete( route('tasks.delete', [id]), {
             onSuccess: page => {
                 router.reload();
             }
         });
     }
 }
+const start = ref(FormatDateTime(props.task.start*1000));
+const end = ref(FormatDateTime(props.task.end*1000));
+console.log(start.value);
 
-const start = ref(null);
-const end = ref(null);
-const handleDateTimeUpdate = (field, el) => {
-    updateTask[field] = ParseDateTimeLocalToSeconds(el.value);
+const handleDateTimeUpdateStart = () => {
+    updateTask.start = ParseDateTimeLocalToSeconds(start.value);
+    handleUpdate();
+};
+const handleDateTimeUpdateEnd = () => {
+    updateTask.end = ParseDateTimeLocalToSeconds(end.value);
     handleUpdate();
 };
 
@@ -66,20 +74,18 @@ const removeDescription = (index) => {
 </script>
 
 <template>
-    <div class="flex flex-row hover:bg-[#32353a] group items-center">
-        <input type="text" v-model="updateTask.title" class="bg-transparent border-0 ring-0 focus:ring-0 flex-grow" @focusout="handleUpdate" />
+    <div class="flex flex-row group items-center justify-between">
+        <input type="text" v-model="updateTask.title" class="bg-transparent border-0 ring-0 focus:ring-0 flex-grow md:max-w-[40%]" @focusout="handleUpdate" />
         <button type="button" @click="openDescription = true">
             <ListBulletIcon class="size-6" />
         </button>
-        <select class="bg-[#212429] group-hover:bg-[#32353a] border-0 cursor-pointer" v-model="updateTask.tag" @change="handleUpdate">
-            <option disabled>Tag</option>
-            <option v-for="tag in tags" :value="tag.id">{{ tag.tag }}</option>
-        </select>
-        <input type="datetime-local" step="1" @change="handleDateTimeUpdate('start', start)" ref="start" class="bg-transparent border-1 rounded m-1 ring-0" :value="FormatDateTime(updateTask.start*1000)">
-        -
-        <input type="datetime-local" step="1" @change="handleDateTimeUpdate('end', end)" ref="end" class="bg-transparent border-1 rounded m-1 ring-0" :value="FormatDateTime(updateTask.end*1000)">
-        <span class="mx-2">{{ FormatElapsedTime(updateTask.end - updateTask.start) }}</span>
-        <button type="button" @click="handleDelete" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
+        
+        <TagSelector :tags="tags" v-model="updateTask.tag" @change="handleUpdate" class="!w-36 text-center"/>
+        <vue-tailwind-datepicker v-model="start" as-single @update:model-value="handleDateTimeUpdateStart" input-classes="bg-transparent border-1 rounded m-1 ring-0" class="max-w-[338px]" />
+        <span class="max-w-10 text-center w-full">-</span>
+        <vue-tailwind-datepicker v-model="end" as-single @update:model-value="handleDateTimeUpdateEnd" input-classes="bg-transparent border-1 rounded m-1 ring-0" class="max-w-[338px]" />
+        <span class="mx-2 min-w-24 text-center font-bold text-blue-600">{{ FormatElapsedTime(updateTask.end - updateTask.start) }}</span>
+        <button type="button" @click="handleDelete" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1" ><TrashIcon class="size-6" /></button>
     </div>
 
     <Modal :show="openDescription" @close="openDescription = false">
