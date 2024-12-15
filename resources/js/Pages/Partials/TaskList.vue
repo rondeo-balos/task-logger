@@ -27,7 +27,7 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
                         <span>Total: <b>{{ FormatElapsedTime(total.daily[day]) }}</b></span>
                     </div>
                     <div class="flex flex-col-reverse">
-                        <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-gray-600 bg-[#393943] hover:bg-[#4C566A]">
+                        <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-gray-600 bg-[#393943] hover:bg-[#1a1a1c]">
                             <Task :task="task" :tags="tags" />
                         </div>
                     </div>

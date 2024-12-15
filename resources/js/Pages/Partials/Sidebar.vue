@@ -1,3 +1,7 @@
+<script setup>
+const showCanvas = defineModel();
+</script>
+
 <template>
     <div class="flex flex-col p-3 text-white bg-[#27272f] shadow-xl sticky top-0 h-screen">
         <a href="/" class="flex items-center mb-5">
@@ -17,8 +21,8 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="p-4 py-2 bg-transparent rounded-lg block">
-                    Notes
+                <a href="#" class="p-4 py-2 bg-transparent rounded-lg block" @click.prevent="showCanvas = true">
+                    Collections
                 </a>
             </li>
         </ul>

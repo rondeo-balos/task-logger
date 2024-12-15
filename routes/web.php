@@ -13,8 +13,10 @@ use Inertia\Inertia;
 Route::get('/', function () {
     $tags = TagsController::list();
     $tasks = TasksController::list();
+    $notes = NotesController::list();
 
     return Inertia::render('Welcome', [
+        'notes' => $notes,
         'tags' => $tags,
         'tasks' => $tasks['data'],
         'total' => $tasks['total']
