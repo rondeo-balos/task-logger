@@ -49,3 +49,14 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::get( '/export', function() {
+    $tags = TagsController::list();
+    $tasks = TasksController::list();
+
+    return Inertia::render('Export', [
+        'tags' => $tags,
+        'tasks' => $tasks['data'],
+        'total' => $tasks['total']
+    ]);
+})->name( 'export' );
