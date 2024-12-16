@@ -15,7 +15,7 @@ Route::get('/', function () {
     $tasks = TasksController::list();
     $notes = NotesController::list();
 
-    return Inertia::render('Welcome', [
+    return Inertia::render('Worksheet', [
         'notes' => $notes,
         'tags' => $tags,
         'tasks' => $tasks['data'],

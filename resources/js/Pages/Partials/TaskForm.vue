@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import { FormatElapsedTime } from './Composables/Time';
 import Modal from '@/Components/Modal.vue';
 import TagSelector from '@/Components/TagSelector.vue';
+import Offcanvas from '@/Components/Offcanvas.vue';
 
 const emit = defineEmits(['reload']);
 
@@ -65,7 +66,7 @@ const removeDescription = (index) => {
 </script>
 
 <template>
-    <div class="border border-gray-600 mb-5 bg-[#27272f] p-2 text-white shadow-xl sticky top-0 z-[100]">
+    <div class="border border-gray-600 mb-5 bg-[#27272f] p-2 text-white shadow-xl sticky top-2 z-[100]">
         <form @submit.prevent="submitTask" class="flex flex-row justify-between items-center gap-5">
             <div class="flex-grow">
                 <input type="text" v-model="newTasks.title" class="bg-transparent p-2 w-full border-0 focus:ring-0 ring-0" placeholder="What are you working on?" required />
@@ -80,21 +81,16 @@ const removeDescription = (index) => {
         </form>
     </div>
 
-    <Modal :show="openDescription" @close="openDescription = false">
-        <div class="divide-y divide-gray-400">
-            <h2 class="text-lg font-medium p-6" >
-                What did you do?
-            </h2>
-
-            <div class="p-4 space-y-2">
-                <div v-for="(description, index) in newTasks.description">
-                    <div class="flex flex-row gap-2">
-                        <textarea v-model="newTasks.description[index]" class="border rounded w-full bg-transparent" />
-                        <button type="button" @click="removeDescription(index)" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
-                    </div>
+    <Offcanvas v-model="openDescription">
+        <h2 class="text-2xl font-bold">Describe the work you performed</h2>
+        <div class="py-4 space-y-2">
+            <div v-for="(description, index) in newTasks.description">
+                <div class="flex flex-row gap-2">
+                    <textarea v-model="newTasks.description[index]" class="border rounded w-full bg-transparent" />
+                    <button type="button" @click="removeDescription(index)" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
                 </div>
-                <button type="button" @click="newDescription" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1 ms-auto" ><PlusCircleIcon class="size-6" /> Description</button>
             </div>
+            <button type="button" @click="newDescription" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1" ><PlusCircleIcon class="size-6" /> Description</button>
         </div>
-    </Modal>
+    </Offcanvas>
 </template>

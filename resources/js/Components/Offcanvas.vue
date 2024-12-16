@@ -25,7 +25,7 @@ onUnmounted(() => document.addEventListener('keydown', closeOnEscape));
 </script>
 
 <template>
-    <div class="z-[200]">
+    <div class="!z-[200] relative">
         <div v-show="show" class="fixed left-0 top-0 right-0 bottom-0 bg-black bg-opacity-60 backdrop-blur-sm" @click="close"></div>
         <Transition name="slide-fade">
             <div v-show="show" class="bg-[#1c1c1e] text-white fixed w-[500px] top-0 right-0 h-screen p-4 shadow-xl">

@@ -6,6 +6,7 @@ import { ref } from 'vue';
 import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
 import VueTailwindDatepicker from "vue-tailwind-datepicker";
 import TagSelector from '@/Components/TagSelector.vue';
+import Offcanvas from '@/Components/Offcanvas.vue';
 
 const props = defineProps([ 'task', 'tags' ]);
 const id = props.task.id;
@@ -86,21 +87,16 @@ const removeDescription = (index) => {
         <button type="button" @click="handleDelete" class="p-2 px-3 text-red-500 hover:text-red-600 flex flex-row gap-1" ><TrashIcon class="size-6" /></button>
     </div>
 
-    <Modal :show="openDescription" @close="openDescription = false">
-        <div class="divide-y">
-            <h2 class="text-lg font-medium p-6" >
-                What did you do?
-            </h2>
-
-            <div class="p-4 space-y-2">
-                <div v-for="(description, index) in updateTask.description">
-                    <div class="flex flex-row gap-2">
-                        <textarea v-model="updateTask.description[index]" class="border rounded w-full bg-transparent" @focusout="handleUpdate"/>
-                        <button type="button" @click="removeDescription(index)" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
-                    </div>
+    <Offcanvas v-model="openDescription">
+        <h2 class="text-2xl font-bold">Describe the work you performed</h2>
+        <div class="py-4 space-y-2">
+            <div v-for="(description, index) in updateTask.description">
+                <div class="flex flex-row gap-2">
+                    <textarea v-model="updateTask.description[index]" class="border rounded w-full bg-transparent" @focusout="handleUpdate"/>
+                    <button type="button" @click="removeDescription(index)" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
                 </div>
-                <button type="button" @click="newDescription" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1 ms-auto" ><PlusCircleIcon class="size-6" /> Description</button>
             </div>
+            <button type="button" @click="newDescription" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1" ><PlusCircleIcon class="size-6" /> Description</button>
         </div>
-    </Modal>
+    </Offcanvas>
 </template>
