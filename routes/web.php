@@ -5,19 +5,16 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\WorkplaceController;
+use App\Http\Middleware\CheckWorkplace;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/dashboard', function () {
+Route::get('/dashboard', function() {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function() {
     Route::get('/', function () {
-        if( !Auth::user()->workplaces ) {
-            return Redirect::route( 'workplace' );
-        }
-
         $workplaces = Auth::user()->workplaces;
         $tags = TagsController::list();
         $tasks = TasksController::list();
@@ -31,7 +28,7 @@ Route::middleware('auth')->group(function () {
             'total' => $tasks['total']
         ];
         return Inertia::render('Worksheet', $data);
-    })->name( 'home' );
+    })->name( 'home' )->middleware(CheckWorkplace::class.':read');
 
     Route::get('/workplace', function(){
         $workplaces = Auth::user()->workplaces;
@@ -39,7 +36,9 @@ Route::middleware('auth')->group(function () {
             'workplaces' => $workplaces
         ]);
     })->name('workplace');
+});
 
+Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
     Route::get('/workplace/{id}', [WorkplaceController::class, 'set'])->name('workplace.set');
     Route::post( '/workplace/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
     Route::post('/workplace', [WorkplaceController::class, 'create'])->name('workplace.create');

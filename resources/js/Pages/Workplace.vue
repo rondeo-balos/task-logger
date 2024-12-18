@@ -11,7 +11,7 @@ const showCreation = ref(false);
 <template>
     <Head title="Workplaces" />
 
-    <div class="flex flex-row flex-wrap gap-3 p-3 min-h-screen bg-[var(--body-bg)]">
+    <div class="flex flex-row flex-wrap gap-3 p-3 min-h-screen bg-[var(--body-bg)] justify-center">
         <Link v-for="workplace in workplaces" :href="route('workplace.set', workplace.id)">
             <img :src="`https://placehold.co/100x100/000000/ffffff/?text=${workplace.name[0]}`" :class="['size-24 rounded-xl']" />
         </Link>
