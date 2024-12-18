@@ -13,7 +13,7 @@ class TagsController extends Controller {
     }
     
     public static function list() {
-        $data = Tags::get( ['ID','tag','color']);
+        $data = \Auth::user()->workplace->tags;
         return $data;
     }
 

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tasks extends Model {
     protected $table = 'tasks';
-    protected $fillable = ['title', 'description', 'tag', 'start', 'end'];
+    protected $fillable = ['title', 'description', 'tag', 'start', 'end', 'workplace_id'];
 
     protected function description(): Attribute {
         return Attribute::make(
@@ -19,5 +19,11 @@ class Tasks extends Model {
         return [
             'description' => 'array',
         ];
+    }
+
+    public function workplace_id(): Attribute {
+        return Attribute::make(
+            set: fn () => session( 'workplace', 1 )
+        );
     }
 }

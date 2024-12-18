@@ -14,7 +14,7 @@ class TasksController extends Controller {
     }
     
     public static function list() {
-        $data = Tasks::whereBetween('start', [strtotime(date('Y-m-01')), strtotime(date('Y-m-t'))])->orderByDesc( 'start' )->get();
+        $data = \Auth::user()->workplace->tasks;
         
         $dailyTotals = [];
         $weeklyTotals = [];

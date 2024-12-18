@@ -4,7 +4,7 @@ const showTagsCanvas = defineModel('tag');
 </script>
 
 <template>
-    <div class="flex flex-col px-3 text-white bg-[#27272f] shadow-xl h-full">
+    <div class="flex flex-col px-3 text-white bg-[var(--sidebar-bg)] shadow-xl h-full">
         <div class="sticky top-0 py-3">
             <!--<a href="/" class="flex items-center mb-5">
                 <img src="/logo.svg" class="me-2" width="50px" height="50px">

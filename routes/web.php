@@ -4,30 +4,46 @@ use App\Http\Controllers\NotesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TasksController;
-use App\Models\Tags;
-use App\Models\Tasks;
-use Illuminate\Support\Carbon;
+use App\Http\Controllers\WorkplaceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-Route::get('/', function () {
-    $tags = TagsController::list();
-    $tasks = TasksController::list();
-    $notes = NotesController::list();
-
-    return Inertia::render('Worksheet', [
-        'notes' => $notes,
-        'tags' => $tags,
-        'tasks' => $tasks['data'],
-        'total' => $tasks['total']
-    ]);
-})->name( 'home' );
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/', function () {
+        if( !Auth::user()->workplaces ) {
+            return Redirect::route( 'workplace' );
+        }
+
+        $workplaces = Auth::user()->workplaces;
+        $tags = TagsController::list();
+        $tasks = TasksController::list();
+        $notes = NotesController::list();
+    
+        $data = [
+            'workplaces' => $workplaces,
+            'notes' => $notes,
+            'tags' => $tags,
+            'tasks' => $tasks['data'],
+            'total' => $tasks['total']
+        ];
+        return Inertia::render('Worksheet', $data);
+    })->name( 'home' );
+
+    Route::get('/workplace', function(){
+        $workplaces = Auth::user()->workplaces;
+        return Inertia::render('Workplace', [
+            'workplaces' => $workplaces
+        ]);
+    })->name('workplace');
+
+    Route::get('/workplace/{id}', [WorkplaceController::class, 'set'])->name('workplace.set');
+    Route::post( '/workplace/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
+    Route::post('/workplace', [WorkplaceController::class, 'create'])->name('workplace.create');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

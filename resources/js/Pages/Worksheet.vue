@@ -9,7 +9,7 @@ import Collections from './Partials/Collections.vue';
 import { PlusIcon } from '@heroicons/vue/24/solid';
 import MasterSidebar from './Partials/MasterSidebar.vue';
 
-const props = defineProps([ 'tasks', 'tags', 'notes', 'total' ]);
+const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total' ]);
 
 const showCollectionCanvas = ref(false);
 const showTagsCanvas = ref(false);
@@ -18,13 +18,13 @@ const showTagsCanvas = ref(false);
 <template>
     <Head title="Welcome" />
 
-    <div class="w-screen min-h-screen max-h-screen bg-[#1c1c1e] flex flex-row">
+    <div class="w-screen min-h-screen max-h-screen bg-[var(--master-bg)] flex flex-row">
 
-        <MasterSidebar />
+        <MasterSidebar :workplaces="workplaces" />
 
         <div class="max-h-full w-full relative">
-            <div class="bg-[#1c1c1e] w-full max-h-full overflow-hidden overflow-y-auto">
-                <div class="flex flex-row content-evenly">
+            <div class="bg-[var(--body-bg)] w-full h-full max-h-full overflow-hidden overflow-y-auto">
+                <div class="flex flex-row content-evenly min-h-full">
                     
                     <div class="w-64">
                         <Sidebar v-model:collection="showCollectionCanvas" v-model:tag="showTagsCanvas" />

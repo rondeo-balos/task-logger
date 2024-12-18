@@ -10,12 +10,12 @@ import Offcanvas from '@/Components/Offcanvas.vue';
 
 const emit = defineEmits(['reload']);
 
-defineProps([ 'tags' ]);
+const props = defineProps([ 'tags' ]);
 
 const newTasks = useForm({
     title: '',
     description: [],
-    tag: 8,
+    tag: props.tags[0].id,
     start: 0,
     end: 0,
 });
@@ -66,7 +66,7 @@ const removeDescription = (index) => {
 </script>
 
 <template>
-    <div class="border border-gray-600 mb-5 bg-[#27272f] p-2 text-white shadow-xl sticky top-2 z-[100]">
+    <div class="border border-[var(--separator)] mb-5 bg-[var(--card-bg)] p-2 text-white shadow-xl sticky top-2 z-[100]">
         <form @submit.prevent="submitTask" class="flex flex-row justify-between items-center gap-5">
             <div class="flex-grow">
                 <input type="text" v-model="newTasks.title" class="bg-transparent p-2 w-full border-0 focus:ring-0 ring-0" placeholder="What are you working on?" required />

@@ -13,7 +13,7 @@ class NotesController extends Controller {
     }
     
     public static function list() {
-        $data = Notes::orderBy( 'ID' )->get();
+        $data = \Auth::user()->workplace->notes;
         return $data;
     }
 
