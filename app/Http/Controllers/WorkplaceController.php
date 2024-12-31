@@ -6,6 +6,7 @@ use App\Models\Tags;
 use App\Models\User;
 use App\Models\Workplace;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Redirect;
 
 class WorkplaceController extends Controller {
@@ -16,11 +17,6 @@ class WorkplaceController extends Controller {
     public static function list() {
         $data = \Auth::user()->workplaces;
         return $data;
-    }
-
-    public function set( Request $request, $id ) {
-        session()->put( 'workplace', $id );
-        return Redirect::route( 'home' );
     }
 
     public function create( Request $request ) {
@@ -44,6 +40,18 @@ class WorkplaceController extends Controller {
     public function update( Request $request, $id ) {
         $data = $request->all();
         Workplace::find($id)->update( $data );
+        return Redirect::route( 'home' );
+    }
+
+    /**
+     * Advance routes
+     */
+    public function edit( Request $request, $id ) {
+        return Inertia::render('Workplace/Edit', []);
+    }
+
+    public function set( Request $request, $id ) {
+        session()->put( 'workplace', $id );
         return Redirect::route( 'home' );
     }
 

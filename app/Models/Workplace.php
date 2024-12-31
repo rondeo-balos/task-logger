@@ -21,7 +21,7 @@ class Workplace extends Model {
 
     public function tasks(): HasMany {
         return $this->hasMany(Tasks::class, 'workplace_id')
-            ->whereBetween('start', [strtotime(date('Y-m-01')), strtotime(date('Y-m-t'))])
+            //->whereBetween('start', [strtotime(date('Y-m-01')), strtotime(date('Y-m-t'))])
             ->orderByDesc( 'start' );
     }
 

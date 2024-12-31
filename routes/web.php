@@ -9,9 +9,12 @@ use App\Http\Middleware\CheckWorkplace;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/dashboard', function() {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/workplace', function(){
+    $workplaces = Auth::user()->workplaces;
+    return Inertia::render('Workplace/Workplace', [
+        'workplaces' => $workplaces
+    ]);
+})->name('workplace')->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function() {
     Route::get('/', function () {
@@ -29,19 +32,13 @@ Route::middleware('auth')->group(function() {
         ];
         return Inertia::render('Worksheet', $data);
     })->name( 'home' )->middleware(CheckWorkplace::class.':read');
-
-    Route::get('/workplace', function(){
-        $workplaces = Auth::user()->workplaces;
-        return Inertia::render('Workplace', [
-            'workplaces' => $workplaces
-        ]);
-    })->name('workplace');
 });
 
 Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
-    Route::get('/workplace/{id}', [WorkplaceController::class, 'set'])->name('workplace.set');
-    Route::post( '/workplace/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
-    Route::post('/workplace', [WorkplaceController::class, 'create'])->name('workplace.create');
+    Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');
+    Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set');
+    Route::post( '/workplace/give/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
+    Route::post('/workplace/new', [WorkplaceController::class, 'create'])->name('workplace.create');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
