@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Auth;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,9 +21,7 @@ class Workplace extends Model {
     }
 
     public function tasks(): HasMany {
-        return $this->hasMany(Tasks::class, 'workplace_id')
-            //->whereBetween('start', [strtotime(date('Y-m-01')), strtotime(date('Y-m-t'))])
-            ->orderByDesc( 'start' );
+        return $this->hasMany(Tasks::class, 'workplace_id')->orderByDesc( 'start' );
     }
 
     public function tags(): HasMany {

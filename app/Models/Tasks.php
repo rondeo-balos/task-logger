@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,5 +26,16 @@ class Tasks extends Model {
         return Attribute::make(
             set: fn () => session( 'workplace', 1 )
         );
+    }
+
+    public function scopeFilter( Builder $query, array $filters ): Builder {
+        $query->whereBetween('start', [
+            strtotime($filters['range'][0]),
+            strtotime($filters['range'][1]),
+        ]);
+
+        //$query->ddRawSql();
+    
+        return $query;
     }
 }

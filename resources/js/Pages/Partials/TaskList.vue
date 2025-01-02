@@ -3,6 +3,7 @@ import Task from './Task.vue';
 import { FormatElapsedTime, WeekRange } from './Composables/Time';
 import { GetDayName } from './Composables/Time';
 import { reactive, ref, toRef } from 'vue';
+import Filter from './Filter.vue';
 
 const props = defineProps([ 'tasks', 'tags', 'total' ]);
 </script>
@@ -10,6 +11,8 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
 <template>
 
     <h1 class="text-center font-black text-gray-500 text-4xl">This month's total: {{ FormatElapsedTime(total.monthly) }}</h1>
+
+    <Filter />
 
     <div class="flex flex-col-reverse text-white">
 

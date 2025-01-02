@@ -8,6 +8,7 @@ use App\Http\Controllers\WorkplaceController;
 use App\Http\Middleware\CheckWorkplace;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 Route::get('/workplace', function(){
     $workplaces = Auth::user()->workplaces;
@@ -17,10 +18,10 @@ Route::get('/workplace', function(){
 })->name('workplace')->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function() {
-    Route::get('/', function () {
+    Route::get('/', function( Request $request ) {
         $workplaces = Auth::user()->workplaces;
         $tags = TagsController::list();
-        $tasks = TasksController::list();
+        $tasks = TasksController::list( $request );
         $notes = NotesController::list();
     
         $data = [
@@ -28,7 +29,8 @@ Route::middleware('auth')->group(function() {
             'notes' => $notes,
             'tags' => $tags,
             'tasks' => $tasks['data'],
-            'total' => $tasks['total']
+            'total' => $tasks['total'],
+            'filter' => $tasks['filter']
         ];
         return Inertia::render('Worksheet', $data);
     })->name( 'home' )->middleware(CheckWorkplace::class.':read');
@@ -62,7 +64,7 @@ Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
 
 require __DIR__.'/auth.php';
 
-Route::get( '/export', function() {
+Route::get( '/export', function( Request $request ) {
     $tags = TagsController::list();
     $tasks = TasksController::list();
 

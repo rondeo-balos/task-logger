@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tasks;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Redirect;
@@ -10,11 +11,15 @@ use Redirect;
 class TasksController extends Controller {
 
     public function index( Request $request ) {
-        return response()->json(self::list());
+        return response()->json(self::list( $request ));
     }
     
-    public static function list() {
-        $data = \Auth::user()->workplace->tasks;
+    public static function list( Request $request ) {
+        $filters = $request->only(['range']); // Extract only the range parameter
+        if( empty($filters['range']) || !is_array($filters['range']) || count($filters['range']) !== 2 ) {
+            $filters['range'] = [ date('Y-m-01 00:00:00'), date('Y-m-t 23:59:59') ];
+        }
+        $data = \Auth::user()->workplace->tasks()->filter($filters)->get();
         
         $dailyTotals = [];
         $weeklyTotals = [];
@@ -69,7 +74,8 @@ class TasksController extends Controller {
                 'daily' => $dailyTotals,
                 'weekly' => $weeklyTotals,
                 'monthly' => $monthlyTotal
-            ]
+            ],
+            'filter' => $filters
         ];
     }
 
