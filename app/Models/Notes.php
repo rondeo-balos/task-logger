@@ -9,9 +9,11 @@ class Notes extends Model {
     protected $table = 'notes';
     protected $fillable = ['index', 'content', 'workplace_id'];
 
-    public function workplace_id(): Attribute {
-        return Attribute::make(
-            set: fn () => session( 'workplace', 1 )
-        );
+    protected static function booted() {
+        static::creating( function( $model ) {
+            if (session()->has('workplace')) {
+                $model->workplace_id = session('workplace');
+            }
+        });
     }
 }

@@ -9,9 +9,11 @@ class Tags extends Model {
     protected $table = 'tags';
     protected $fillable = ['tag','color','workplace_id'];
 
-    public function workplace_id(): Attribute {
-        return Attribute::make(
-            set: fn ($value) =>  $value ?? session( 'workplace', 1 )
-        );
+    protected static function booted() {
+        static::creating( function( $model ) {
+            if (session()->has('workplace')) {
+                $model->workplace_id = session('workplace');
+            }
+        });
     }
 }

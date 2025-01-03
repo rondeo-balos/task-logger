@@ -8,6 +8,7 @@ use App\Models\Workplace;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Redirect;
+use Spatie\Permission\Models\Permission;
 
 class WorkplaceController extends Controller {
     public function index( Request $request ) {
@@ -16,6 +17,7 @@ class WorkplaceController extends Controller {
     
     public static function list() {
         $data = \Auth::user()->workplaces;
+
         return $data;
     }
 
@@ -47,7 +49,9 @@ class WorkplaceController extends Controller {
      * Advance routes
      */
     public function edit( Request $request, $id ) {
-        return Inertia::render('Workplace/Edit', []);
+        return Inertia::render('Workplace/Edit', [
+            'workplace_id' => $id
+        ]);
     }
 
     public function set( Request $request, $id ) {
@@ -60,9 +64,34 @@ class WorkplaceController extends Controller {
         $email = $request->get( 'email' );
 
         $workplace = Workplace::find( $id );
-        $user = User::where( 'email', $email );
+        try {
+            $user = User::where( 'email', $email )->firstOrFail();
+            if( $workplace && $user && $workplace->user_id === \Auth::user()->id ) {
+
+                foreach( $permission as $value ) {
+                    // Check if the permission exists, if not, create it
+                    if( !Permission::where('name', "$value $id")->exists() ) {
+                        Permission::create(['name' => "$value $id", 'guard_name' => 'web']);
+                    }
+
+                    $user->givePermissionTo( "$value $id" );
+                }
+            }
+        } catch ( \Exception $e ) {
+            \Log::error( $e->getMessage() );
+        }
+
+        return Redirect::back();
+    }
+
+    public function revokeWorkplacePermissionTo( Request $request, $id ) {
+        $email = $request->get( 'email' );
+        $workplace = Workplace::find( $id );
+        
+        $user = User::where( 'email', $email )->firstOrFail();
         if( $workplace && $user && $workplace->user_id === \Auth::user()->id ) {
-            $user->givePermissionTo( "$permission $id" );
+            $user->revokePermissionTo( "read $id" );
+            $user->revokePermissionTo( "write $id" );
         }
 
         return Redirect::back();

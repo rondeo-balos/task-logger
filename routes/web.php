@@ -12,20 +12,24 @@ use Illuminate\Http\Request;
 
 Route::get('/workplace', function(){
     $workplaces = Auth::user()->workplaces;
+    $sharedWorkplaces = Auth::user()->sharedWorkplaces();
+
     return Inertia::render('Workplace/Workplace', [
-        'workplaces' => $workplaces
+        'workplaces' => $workplaces->merge($sharedWorkplaces)
     ]);
 })->name('workplace')->middleware(['auth', 'verified']);
 
 Route::middleware('auth')->group(function() {
     Route::get('/', function( Request $request ) {
         $workplaces = Auth::user()->workplaces;
+        $sharedWorkplaces = Auth::user()->sharedWorkplaces();
+
         $tags = TagsController::list();
         $tasks = TasksController::list( $request );
         $notes = NotesController::list();
     
         $data = [
-            'workplaces' => $workplaces,
+            'workplaces' => $workplaces->merge($sharedWorkplaces),
             'notes' => $notes,
             'tags' => $tags,
             'tasks' => $tasks['data'],
@@ -36,10 +40,13 @@ Route::middleware('auth')->group(function() {
     })->name( 'home' )->middleware(CheckWorkplace::class.':read');
 });
 
+
+Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set')->middleware([ 'auth' ]);
+
 Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
     Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');
-    Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set');
     Route::post( '/workplace/give/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
+    Route::post( '/workplace/revoke/{id}', [WorkplaceController::class, 'revokeWorkplacePermissionTo'])->name('workplace.revoke');
     Route::post('/workplace/new', [WorkplaceController::class, 'create'])->name('workplace.create');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -35,6 +35,22 @@ class User extends Authenticatable {
         return $this->hasMany(Workplace::class, 'user_id');
     }
 
+    public function sharedWorkplaces() {
+        // Get permissions granted to the user that start with 'read'
+        $readPermissions = $this->permissions()
+            ->where('name', 'LIKE', 'read %')
+            ->pluck('name'); // Example: ['read 1', 'read 2']
+        //dd( $readPermissions );
+
+        // Extract workplace IDs from permission names
+        $workplaceIds = $readPermissions->map( function( $permission ) {
+            return intval(str_replace('read ', '', $permission));
+        });
+
+        // Fetch workplaces matching the extracted IDs
+        return Workplace::whereIn('id', $workplaceIds)->get();
+    }
+
     public function workplace(): Attribute {
         return new Attribute(
             get: fn () => Workplace::find( session('workplace', 1) )

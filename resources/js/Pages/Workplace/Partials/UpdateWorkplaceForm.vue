@@ -3,10 +3,10 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 
 const updateWorkplaceForm = useForm({
-
+    name: ''
 });
 </script>
 
@@ -21,13 +21,7 @@ const updateWorkplaceForm = useForm({
         <form class="w-full mt-6 space-y-6">
             <div>
                 <InputLabel for="name" value="Name" />
-                <TextInput id="name" type="text" class="mt-1 block w-full"/>
-                <InputError class="mt-2" :message="''" />
-            </div>
-
-            <div>
-                <InputLabel for="access" value="Access (separate with commas)" />
-                <TextInput id="access" type="text" class="mt-1 block w-full"/>
+                <TextInput v-model="updateWorkplaceForm.name"  id="name" type="text" class="mt-1 block w-full"/>
                 <InputError class="mt-2" :message="''" />
             </div>
         </form>

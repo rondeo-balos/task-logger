@@ -22,10 +22,12 @@ class Tasks extends Model {
         ];
     }
 
-    public function workplace_id(): Attribute {
-        return Attribute::make(
-            set: fn () => session( 'workplace', 1 )
-        );
+    protected static function booted() {
+        static::creating( function( $model ) {
+            if (session()->has('workplace')) {
+                $model->workplace_id = session('workplace');
+            }
+        });
     }
 
     public function scopeFilter( Builder $query, array $filters ): Builder {

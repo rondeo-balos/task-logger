@@ -16,12 +16,12 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        DB::table( 'workplaces' )->insert([
+        /*DB::table( 'workplaces' )->insert([
             'name' => 'Harvey',
             'user_id' => 1,
             'created_at' => now(),
             'updated_at' => now(),
-        ]);
+        ]);*/
     }
 
     /**

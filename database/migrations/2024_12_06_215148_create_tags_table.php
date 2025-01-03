@@ -15,6 +15,13 @@ return new class extends Migration {
             $table->string( 'color' );
             $table->timestamps();
         });
+
+        /*DB::table( 'tags' )->insert([
+            'tag' => 'N/A',
+            'color' => 'secondary',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);*/
     }
 
     /**
