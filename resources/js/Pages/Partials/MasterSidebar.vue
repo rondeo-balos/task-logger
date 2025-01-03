@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PlusIcon } from '@heroicons/vue/24/solid';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import WorkplaceCreation from '@/Pages/Workplace/Partials/WorkplaceCreation.vue';
 import { ref } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
@@ -34,7 +34,7 @@ const showCreation = ref(false);
         </div>
 
         <Link :href="route('profile.edit')" class="mt-auto">
-            <img src="/profile-placeholder.png" class="size-12 rounded-full bg-[#141413]" />
+            <img :src="`https://gravatar.com/avatar/${usePage().props.auth.hashed_email}`" class="size-12 rounded-full bg-[#141413]" />
         </Link>
     </div>
 
