@@ -32,7 +32,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'hashed_email' => hash( 'sha256', $request->user() ? $request->user()->email ? '' ),
+                'hashed_email' => hash( 'sha256', $request->user() ? $request->user()->email : '' ),
                 'user' => $request->user(),
             ],
         ];
