@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tags;
 use App\Models\User;
 use App\Models\Workplace;
+use App\Notifications\AccessShared;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Redirect;
@@ -76,6 +77,9 @@ class WorkplaceController extends Controller {
 
                     $user->givePermissionTo( "$value $id" );
                 }
+
+                $link = route( 'workplace.set', [$workplace->id]);
+                $user->notify( new AccessShared( $workplace->name, implode( ', ', $permission ), $link ) );
             }
         } catch ( \Exception $e ) {
             \Log::error( $e->getMessage() );
