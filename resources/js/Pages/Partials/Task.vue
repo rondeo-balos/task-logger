@@ -2,7 +2,7 @@
 import Modal from '@/Components/Modal.vue';
 import { ListBulletIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
-import { onMounted, reactive, ref, watch } from 'vue';
+import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
 import VueTailwindDatepicker from "vue-tailwind-datepicker";
 import TagSelector from '@/Components/TagSelector.vue';
@@ -26,10 +26,14 @@ const updateTask = useForm({
 });
 
 const handleUpdate = () => {
-    updateTask.post( route('tasks.update', [id]), {
-        onSuccess: page => {
-            //router.reload();
-            emit('total-update', (updateTask.end - updateTask.start) - taskDuration);
+    nextTick(() => {
+        if( updateTask.isDirty ) {
+            updateTask.post( route('tasks.update', [id]), {
+                onSuccess: page => {
+                    //router.reload();
+                    emit('total-update', (updateTask.end - updateTask.start) - taskDuration);
+                }
+            });
         }
     });
 };
