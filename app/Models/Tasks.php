@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tasks extends Model {
     protected $table = 'tasks';
-    protected $fillable = ['title', 'description', 'tag', 'start', 'end', 'workplace_id'];
+    protected $fillable = ['title', 'description', 'tag', 'start', 'end', 'workplace_id', 'user_id'];
 
     protected function description(): Attribute {
         return Attribute::make(
@@ -27,6 +27,10 @@ class Tasks extends Model {
             if (session()->has('workplace')) {
                 $model->workplace_id = session('workplace');
             }
+
+            if( auth()->check() ) {
+                $model->user_id = \Auth::user()->id;
+            }
         });
     }
 
@@ -39,5 +43,9 @@ class Tasks extends Model {
         //$query->ddRawSql();
     
         return $query;
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

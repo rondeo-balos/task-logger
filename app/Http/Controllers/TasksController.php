@@ -19,7 +19,7 @@ class TasksController extends Controller {
         if( empty($filters['range']) || !is_array($filters['range']) || count($filters['range']) !== 2 ) {
             $filters['range'] = [ date('Y-m-01 00:00:00'), date('Y-m-t 23:59:59') ];
         }
-        $data = \Auth::user()->workplace->tasks()->filter($filters)->get();
+        $data = \Auth::user()->workplace->tasks()->with('user')->filter($filters)->get();
         
         $dailyTotals = [];
         $weeklyTotals = [];

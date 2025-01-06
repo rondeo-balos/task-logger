@@ -2,7 +2,7 @@
 import Modal from '@/Components/Modal.vue';
 import { ListBulletIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
 import VueTailwindDatepicker from "vue-tailwind-datepicker";
 import TagSelector from '@/Components/TagSelector.vue';
@@ -70,10 +70,53 @@ const removeDescription = (index) => {
         handleUpdate();
     }
 };
+
+const emailHashes = reactive({}); // To store email hashes
+/**
+ * Sha-256 temporary
+ */
+ async function sha256(message) {
+    // encode as UTF-8
+    const msgBuffer = new TextEncoder().encode(message);                    
+    // hash the message
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    // convert ArrayBuffer to Array
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    // convert bytes to hex string                  
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
+/**
+ * Compute hash for the task's user email
+ */
+ const computeHashes = async () => {
+  if (props.task.user?.email) {
+    emailHashes[props.task.user.email] = await sha256(
+      props.task.user.email.trim().toLowerCase()
+    );
+  }
+};
+
+// Watch for changes to task.user.email and compute the hash
+watch(
+  () => props.task.user?.email,
+  async (newEmail) => {
+    if (newEmail) {
+      emailHashes[newEmail] = await sha256(newEmail.trim().toLowerCase());
+    }
+  },
+  { immediate: true }
+);
+
+onMounted(() => {
+  computeHashes();
+});
 </script>
 
 <template>
     <div class="flex flex-row group items-center justify-between">
+        <img :src="task.user && emailHashes[task.user.email] ? `https://gravatar.com/avatar/${emailHashes[task.user.email]}` : 'https://placehold.co/30x30?text=?'" class="size-5 rounded-full ms-2">
         <input type="text" v-model="updateTask.title" class="bg-transparent border-0 ring-0 focus:ring-0 flex-grow md:max-w-[40%]" @focusout="handleUpdate" />
         <button type="button" @click="openDescription = true">
             <ListBulletIcon class="size-6" />

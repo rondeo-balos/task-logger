@@ -10,7 +10,7 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
 
 <template>
 
-    <h1 class="text-center font-black text-gray-500 text-4xl">This month's total: {{ FormatElapsedTime(total.monthly) }}</h1>
+    <h1 class="text-center font-black text-gray-500 text-4xl">Monthly Total: {{ FormatElapsedTime(total.monthly) }}</h1>
 
     <Filter />
 
