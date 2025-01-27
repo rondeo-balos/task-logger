@@ -19,7 +19,7 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
         <div v-for="(weekData, week) in tasks">
 
             <div class="p-2 py-1 flex flex-row items-center justify-between mt-8">
-                <b>{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</b>
+                <b>{{ WeekRange(2025, week).start.toDateString() }} - {{ WeekRange(2025, week).end.toDateString() }}</b>
                 <span>Weekly Total: <b>{{ FormatElapsedTime(total.weekly[week]) }}</b></span>
             </div>
 
