@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Workplace;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,6 +36,7 @@ class HandleInertiaRequests extends Middleware
                 'hashed_email' => hash( 'sha256', $request->user() ? $request->user()->email : '' ),
                 'user' => $request->user(),
             ],
+            'current_workplace' => Workplace::find(session('workplace', 1))
         ];
     }
 }

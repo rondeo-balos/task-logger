@@ -17,16 +17,16 @@ const showCreation = ref(false);
         </Link>
 
         <template v-for="workplace in workplaces">
-            <Dropdown v-if="workplace.current" class="cursor-pointer" align="left">
+            <!--<Dropdown v-if="workplace.current" class="cursor-pointer" align="left">
                 <template #trigger>
                     <img :src="`https://placehold.co/100x100/000000/ffffff/?text=${workplace.name[0]}`" :class="['size-12 rounded-xl border-2 border-blue-700']" />
                 </template>
                 <template #content>
                     <DropdownLink :href="route('workplace.edit', [workplace.id])">Edit</DropdownLink>
                 </template>
-            </Dropdown>
-            <Link v-else :href="route('workplace.set', workplace.id)">
-                <img :src="`https://placehold.co/100x100/000000/ffffff/?text=${workplace.name[0]}`" :class="['size-12 rounded-xl border-2 border-transparent']" />
+            </Dropdown>-->
+            <Link :href="route('workplace.set', workplace.id)">
+                <img :src="`https://placehold.co/100x100/000000/ffffff/?text=${workplace.name[0]}`" :class="['size-12 rounded-xl border-2', workplace.current ? 'border-blue-700' : 'border-transparent']" :title="workplace.name" />
             </Link>
         </template>
         <div class="size-12 rounded-xl bg-slate-300 border-2 border-transparent flex items-center justify-center cursor-pointer" @click="showCreation = true">

@@ -19,6 +19,7 @@ const props = defineProps({
 const closeOnEscape = (e) => {
     if (open.value && e.key === 'Escape') {
         open.value = false;
+        emit( 'isOpen', open.value );
     }
 };
 
@@ -42,16 +43,20 @@ const alignmentClasses = computed(() => {
 });
 
 const open = ref(false);
+
+const emit = defineEmits([ 'isOpen' ]);
+
+
 </script>
 
 <template>
     <div class="relative">
-        <div @click="open = !open">
+        <div @click="open = !open; emit('isOpen', open);">
             <slot name="trigger" />
         </div>
 
         <!-- Full Screen Dropdown Overlay -->
-        <div v-show="open" class="fixed inset-0 z-40" @click="open = false"></div>
+        <div v-show="open" class="fixed inset-0 z-40" @click="open = false; emit('isOpen', open);"></div>
 
         <Transition
             enter-active-class="transition ease-out duration-200"
@@ -61,7 +66,7 @@ const open = ref(false);
             leave-from-class="opacity-100 scale-100"
             leave-to-class="opacity-0 scale-95" >
 
-            <div v-show="open" class="absolute z-50 mt-2 rounded-md shadow-lg" :class="[widthClass, alignmentClasses]" style="display: none" @click="open = false" >
+            <div v-show="open" class="absolute z-50 mt-2 rounded-md shadow-lg" :class="[widthClass, alignmentClasses]" style="display: none" @click="open = false; emit('isOpen', open);" >
                 <div class="rounded-md ring-1 ring-black ring-opacity-5" :class="contentClasses">
                     <slot name="content" />
                 </div>

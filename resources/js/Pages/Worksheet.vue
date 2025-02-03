@@ -8,11 +8,13 @@ import { ref } from 'vue';
 import Collections from './Partials/Collections.vue';
 import { PlusIcon } from '@heroicons/vue/24/solid';
 import MasterSidebar from './Partials/MasterSidebar.vue';
+import Queue from './Partials/Queue.vue';
 
 const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total' ]);
 
 const showCollectionCanvas = ref(false);
 const showTagsCanvas = ref(false);
+const showPending = ref(false);
 </script>
 
 <template>
@@ -27,7 +29,7 @@ const showTagsCanvas = ref(false);
                 <div class="flex flex-row content-evenly min-h-full">
                     
                     <div class="w-64">
-                        <Sidebar v-model:collection="showCollectionCanvas" v-model:tag="showTagsCanvas" />
+                        <Sidebar v-model:collection="showCollectionCanvas" v-model:tag="showTagsCanvas" v-model:pending="showPending" />
                     </div>
                     
                     <!-- Main content -->
@@ -35,6 +37,11 @@ const showTagsCanvas = ref(false);
                         <TaskForm :tags="tags" />
                         <TaskList :tasks="tasks" :tags="tags" :total="total" />
                     </div>
+
+                    <Offcanvas v-model="showPending">
+                        <h2 class="text-2xl font-bold">Pending Tasks</h2>
+                        <Queue />
+                    </Offcanvas>
 
                     <Offcanvas v-model="showCollectionCanvas">
                         <h2 class="text-2xl font-bold">Collections</h2>
