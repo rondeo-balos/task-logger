@@ -50,8 +50,14 @@ class WorkplaceController extends Controller {
      * Advance routes
      */
     public function edit( Request $request, $id ) {
+        $workplace = Workplace::find($id);
+        $users = User::whereHas( 'permissions', function($query) use ($id) {
+            $query->where( 'name', 'LIKE', '% ' . $id );
+        })->get();
         return Inertia::render('Workplace/Edit', [
-            'workplace_id' => $id
+            'workplace_id' => $id,
+            'workplace' => $workplace,
+            'users' => $users
         ]);
     }
 

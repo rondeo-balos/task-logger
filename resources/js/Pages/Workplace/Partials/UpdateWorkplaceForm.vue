@@ -5,9 +5,17 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
 
+const props = defineProps([ 'workplace' ]);
+
 const updateWorkplaceForm = useForm({
-    name: ''
+    name: props.workplace.name
 });
+
+const handleSubmit = () => {
+    updateWorkplaceForm.post( route('workplace.update'), {
+        onSuccess: page => {}
+    });
+};
 </script>
 
 <template>
@@ -24,6 +32,7 @@ const updateWorkplaceForm = useForm({
                 <TextInput v-model="updateWorkplaceForm.name"  id="name" type="text" class="mt-1 block w-full"/>
                 <InputError class="mt-2" :message="''" />
             </div>
+            <PrimaryButton type="submit" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1">Save</PrimaryButton>
         </form>
     </section>
 </template>
