@@ -40,6 +40,9 @@ class Tasks extends Model {
             strtotime($filters['range'][1]),
         ]);
 
+        if( !empty($filters['user']) )
+            $query->where( 'user_id', $filters['user'] );
+
         //$query->ddRawSql();
     
         return $query;

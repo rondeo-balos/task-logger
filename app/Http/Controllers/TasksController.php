@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tasks;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -15,7 +16,7 @@ class TasksController extends Controller {
     }
     
     public static function list( Request $request ) {
-        $filters = $request->only(['range']); // Extract only the range parameter
+        $filters = $request->only(['range', 'user']); // Extract only the range parameter
         if( empty($filters['range']) || !is_array($filters['range']) || count($filters['range']) !== 2 ) {
             $filters['range'] = [ date('Y-m-01 00:00:00'), date('Y-m-t 23:59:59') ];
         }
@@ -67,6 +68,11 @@ class TasksController extends Controller {
                 $monthlyTotal += $weeklyTotal;
             }
         }
+
+        $workplace_id = session('workplace');
+        $users = User::whereHas( 'permissions', function($query) use ($workplace_id) {
+            $query->where( 'name', 'LIKE', '% ' . $workplace_id );
+        })->get();
         
         return [
             'data' => $data,
@@ -75,7 +81,8 @@ class TasksController extends Controller {
                 'weekly' => $weeklyTotals,
                 'monthly' => $monthlyTotal
             ],
-            'filter' => $filters
+            'filter' => $filters,
+            'users' => $users
         ];
     }
 

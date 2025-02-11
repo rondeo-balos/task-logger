@@ -34,7 +34,8 @@ Route::middleware('auth')->group(function() {
             'tags' => $tags,
             'tasks' => $tasks['data'],
             'total' => $tasks['total'],
-            'filter' => $tasks['filter']
+            'filter' => $tasks['filter'],
+            'users' => $tasks['users']
         ];
         return Inertia::render('Worksheet', $data);
     })->name( 'home' )->middleware(CheckWorkplace::class.':read');

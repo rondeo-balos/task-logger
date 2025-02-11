@@ -10,9 +10,10 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
 
 <template>
 
-    <h1 class="text-center font-black text-gray-500 text-4xl">Filtered Total: {{ FormatElapsedTime(total.monthly) }}</h1>
-
-    <Filter />
+    <div class="flex flex-row items-end justify-between">
+        <h1 class="text-center font-black text-gray-500 text-4xl">Filtered Total: {{ FormatElapsedTime(total.monthly) }}</h1>
+        <Filter />
+    </div>
 
     <div class="flex flex-col-reverse text-white">
 
