@@ -1,6 +1,6 @@
 <script setup>
 import Modal from '@/Components/Modal.vue';
-import { ListBulletIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/solid';
+import { ListBulletIcon, PlayIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
@@ -12,7 +12,7 @@ const props = defineProps([ 'task', 'tags' ]);
 const id = props.task.id;
 
 // Emit event to notify the parent of a time update
-const emit = defineEmits(['total-update']);
+const emit = defineEmits(['total-update', 'resumeTask']);
 // Calculate task duration and notify parent
 const taskDuration = props.task.end - props.task.start;
 emit('total-update', taskDuration);
@@ -116,6 +116,10 @@ watch(
 onMounted(() => {
   computeHashes();
 });
+
+const handleResume = () => {
+    emit( 'resumeTask', updateTask.title );
+};
 </script>
 
 <template>
@@ -131,7 +135,8 @@ onMounted(() => {
         <span class="max-w-10 text-center w-full">-</span>
         <vue-tailwind-datepicker v-model="end" as-single @update:model-value="handleDateTimeUpdateEnd" input-classes="bg-transparent border-1 rounded m-1 ring-0" class="max-w-[338px]" />
         <span class="mx-2 min-w-24 text-center font-bold text-[#81A1C1]">{{ FormatElapsedTime(updateTask.end - updateTask.start) }}</span>
-        <button type="button" @click="handleDelete" class="p-2 px-3 text-red-500 hover:text-red-600 flex flex-row gap-1" ><TrashIcon class="size-6" /></button>
+        <button type="button" @click="handleResume" class="p-2 px-3 text-white hover:text-blue-600 flex flex-row gap-1" title="Resume"><PlayIcon class="size-6" /></button>
+        <button type="button" @click="handleDelete" class="p-2 px-3 text-red-500 hover:text-red-600 flex flex-row gap-1" title="Trash"><TrashIcon class="size-6" /></button>
     </div>
 
     <Offcanvas v-model="openDescription">

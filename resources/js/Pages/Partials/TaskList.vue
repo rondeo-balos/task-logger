@@ -6,6 +6,11 @@ import { reactive, ref, toRef } from 'vue';
 import Filter from './Filter.vue';
 
 const props = defineProps([ 'tasks', 'tags', 'total' ]);
+
+const emit = defineEmits([ 'resumeTask' ]);
+const handleResume = (title) => {
+    emit( 'resumeTask', title );
+}
 </script>
 
 <template>
@@ -32,7 +37,7 @@ const props = defineProps([ 'tasks', 'tags', 'total' ]);
                     </div>
                     <div class="flex flex-col-reverse">
                         <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-[var(--separator)] bg-[var(--card-bg)] hover:bg-[var(--header-bg)]">
-                            <Task :task="task" :tags="tags" />
+                            <Task :task="task" :tags="tags" @resume-task="handleResume" />
                         </div>
                     </div>
                 </div>

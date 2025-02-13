@@ -15,6 +15,12 @@ const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total' ]);
 const showCollectionCanvas = ref(false);
 const showTagsCanvas = ref(false);
 const showPending = ref(false);
+
+const resumedTask = ref('');
+const handleResume = (title) => {
+    // Call an event to TaskForm
+    resumedTask.value = title;
+}
 </script>
 
 <template>
@@ -34,8 +40,8 @@ const showPending = ref(false);
                     
                     <!-- Main content -->
                     <div class="w-full p-5">
-                        <TaskForm :tags="tags" />
-                        <TaskList :tasks="tasks" :tags="tags" :total="total" />
+                        <TaskForm :tags="tags" :resumedTask="resumedTask" />
+                        <TaskList :tasks="tasks" :tags="tags" :total="total" @resume-task="handleResume" />
                     </div>
 
                     <Offcanvas v-model="showPending">

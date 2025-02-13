@@ -2,7 +2,7 @@
 import { router, useForm } from '@inertiajs/vue3';
 import { ListBulletIcon, PlayIcon, PlusCircleIcon, StopIcon, TagIcon } from '@heroicons/vue/24/solid';
 import { TrashIcon } from '@heroicons/vue/24/outline';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { FormatElapsedTime } from './Composables/Time';
 import Modal from '@/Components/Modal.vue';
 import TagSelector from '@/Components/TagSelector.vue';
@@ -10,7 +10,7 @@ import Offcanvas from '@/Components/Offcanvas.vue';
 
 const emit = defineEmits(['reload']);
 
-const props = defineProps([ 'tags' ]);
+const props = defineProps([ 'tags', 'resumedTask' ]);
 
 const newTasks = useForm({
     title: '',
@@ -63,6 +63,13 @@ const removeDescription = (index) => {
         handleUpdate();
     }
 };
+
+watch(() => props.resumedTask, (newTitle) => {
+    if( newTitle ) {
+        newTasks.title = 'Continuation - ' + newTitle;
+        startTask();
+    }
+});
 </script>
 
 <template>
