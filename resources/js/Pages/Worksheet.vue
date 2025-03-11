@@ -11,7 +11,7 @@ import MasterSidebar from './Partials/MasterSidebar.vue';
 import Queue from './Partials/Queue.vue';
 import NotificationStack from './Partials/NotificationStack.vue';
 
-const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total' ]);
+const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total', 'status' ]);
 
 const showCollectionCanvas = ref(false);
 const showTagsCanvas = ref(false);
@@ -66,7 +66,7 @@ const handleResume = (title) => {
 
     </div>
 
-    <NotificationStack />
+    <NotificationStack :status="status" />
 
     
 </template>

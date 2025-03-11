@@ -35,10 +35,19 @@ class WorkplaceController extends Controller {
                 'color' => 'secondary-emphasis',
                 'workplace_id' => $id
             ]);
+            return Redirect::route( 'home' )
+                ->with( 'status', [
+                    'code' => 201,
+                    'status' => 'Workplace Successfully Created!'
+                ]);
         } catch( \Exception $e ) {
             Log::error( $e->getMessage() );
         }
-        return Redirect::route( 'home' );
+        return Redirect::back()
+            ->with( 'status', [
+                'code' => 500,
+                'status' => 'Error, Please see logs!'
+            ]);
     }
 
     public function delete( Request $request, $id ) {

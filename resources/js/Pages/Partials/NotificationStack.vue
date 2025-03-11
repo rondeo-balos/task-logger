@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue';
 
+const props = defineProps([ 'status' ]);
+
 const statusMap = {
     200: { message: "Success", bg: "#28a745", color: "#ffffff" },         // Green with white text
     201: { message: "Created", bg: "#17a2b8", color: "#ffffff" },    // Teal with white text
@@ -19,7 +21,7 @@ const statusMap = {
 
 const messages = ref([]);
 
-const processMessage = (code) => {
+const processMessage = (code, status) => {
     if (!statusMap[code]) return;
 
     const { message, bg, color } = statusMap[code];
@@ -27,16 +29,15 @@ const processMessage = (code) => {
     const id = Date.now(); // Unique ID for each message
     messages.value.push({ id, message, bg, color });
 
-    // Auto-remove after 3 seconds
+    // Auto-remove after n seconds
     setTimeout(() => {
         messages.value = messages.value.filter(msg => msg.id !== id);
     }, 5000);
 };
 
-processMessage(400);
-setTimeout(()=>processMessage(200), 1000);
-setTimeout(()=>processMessage(201), 3000);
-setTimeout(()=>processMessage(409), 7000);
+if(props.status) {
+    processMessage(props.status.code, props.status.status);
+}
 </script>
 
 <template>

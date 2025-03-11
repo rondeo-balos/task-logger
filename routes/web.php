@@ -15,6 +15,7 @@ Route::get('/workplace', function(){
     $sharedWorkplaces = Auth::user()->sharedWorkplaces();
 
     return Inertia::render('Workplace/Workplace', [
+        'status' => session('status'),
         'workplaces' => $workplaces->merge($sharedWorkplaces)
     ]);
 })->name('workplace')->middleware(['auth', 'verified']);
@@ -29,6 +30,7 @@ Route::middleware('auth')->group(function() {
         $notes = NotesController::list();
     
         $data = [
+            'status' => session('status'),
             'workplaces' => $workplaces->merge($sharedWorkplaces),
             'notes' => $notes,
             'tags' => $tags,
