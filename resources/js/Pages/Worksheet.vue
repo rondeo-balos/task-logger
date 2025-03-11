@@ -9,6 +9,7 @@ import Collections from './Partials/Collections.vue';
 import { PlusIcon } from '@heroicons/vue/24/solid';
 import MasterSidebar from './Partials/MasterSidebar.vue';
 import Queue from './Partials/Queue.vue';
+import NotificationStack from './Partials/NotificationStack.vue';
 
 const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total' ]);
 
@@ -64,6 +65,8 @@ const handleResume = (title) => {
         </div>
 
     </div>
+
+    <NotificationStack />
 
     
 </template>
