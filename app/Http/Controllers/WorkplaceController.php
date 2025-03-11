@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Log;
+use Redirect;
 use App\Models\Tags;
 use App\Models\User;
 use App\Models\Workplace;
 use App\Notifications\AccessShared;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Redirect;
 use Spatie\Permission\Models\Permission;
 
 class WorkplaceController extends Controller {
@@ -23,15 +24,20 @@ class WorkplaceController extends Controller {
     }
 
     public function create( Request $request ) {
-        $data = $request->all();
-        $id = Workplace::create( $data )->id;
-        session()->put( 'workplace', $id );
-        // Creating initial tags
-        Tags::create([
-            'tag' => 'N/A', 
-            'color' => 'secondary-emphasis',
-            'workplace_id' => $id
-        ]);
+        try {
+            Log::info( 'creating workplace' );
+            $data = $request->all();
+            $id = Workplace::create( $data )->id;
+            session()->put( 'workplace', $id );
+            // Creating initial tags
+            Tags::create([
+                'tag' => 'N/A', 
+                'color' => 'secondary-emphasis',
+                'workplace_id' => $id
+            ]);
+        } catch( \Exception $e ) {
+            Log::error( $e->getMessage() );
+        }
         return Redirect::route( 'home' );
     }
 
@@ -88,7 +94,7 @@ class WorkplaceController extends Controller {
                 $user->notify( new AccessShared( $workplace->name, implode( ', ', $permission ), $link ) );
             }
         } catch ( \Exception $e ) {
-            \Log::error( $e->getMessage() );
+            Log::error( $e->getMessage() );
         }
 
         return Redirect::back();

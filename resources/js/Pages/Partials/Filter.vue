@@ -28,7 +28,7 @@ const onChange = () => {
                 </option>
             </select>
         </div>
-        <div class="w-[400px]">
+        <div class="w-[450px]">
             <label>Filter Date</label>
             <vue-tailwind-datepicker @update:model-value="onChange" v-model:model-value="range" as-single use-range input-classes="bg-transparent border-1 rounded m-1 ring-0" class="max-w-[500px]" />
         </div>

@@ -32,6 +32,9 @@ const currentWorkplace = ref(usePage().props.current_workplace);
                                     <img :src="`https://placehold.co/100x100/000000/ffffff/?text=${currentWorkplace.name[0]}`" class="size-12 rounded-xl" /> <span class="font-bold">{{ currentWorkplace.name }}</span>
                                 </li>
                                 <li>
+                                    <DropdownLink href="#" class="hover:bg-[#1264e3] p-2 px-4 w-full block">Analytics</DropdownLink>
+                                </li>
+                                <li>
                                     <DropdownLink :href="route('workplace.edit', [currentWorkplace.id])" class="hover:bg-[#1264e3] p-2 px-4 w-full block">Preferences</DropdownLink>
                                 </li>
                             </ul>
