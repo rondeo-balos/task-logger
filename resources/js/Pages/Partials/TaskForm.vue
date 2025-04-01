@@ -2,7 +2,7 @@
 import { router, useForm } from '@inertiajs/vue3';
 import { ListBulletIcon, PlayIcon, PlusCircleIcon, StopIcon, TagIcon } from '@heroicons/vue/24/solid';
 import { TrashIcon } from '@heroicons/vue/24/outline';
-import { ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { FormatElapsedTime } from './Composables/Time';
 import Modal from '@/Components/Modal.vue';
 import TagSelector from '@/Components/TagSelector.vue';
@@ -69,6 +69,28 @@ watch(() => props.resumedTask, (newTitle) => {
         newTasks.title = 'Continuation - ' + newTitle;
         startTask();
     }
+});
+
+/**
+ * Handle closure, reloading or navigation
+ */
+
+const handleBeforeUnload = (event) => {
+    if( isStarting.value ) {
+        if( newTasks.title === '' )
+            newTasks.title = 'New Task';
+        submitTask();
+        event.preventDefault();
+        event.returnValue = '';
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
 });
 </script>
 
