@@ -107,6 +107,10 @@ const handleBeforeUnload = (event) => {
 };
 
 onMounted(() => {
+    const start = localStorage.getItem('start');
+    const end = localStorage.getItem('end');
+    const title = localStorage.getItem('title');
+
     if( start && end ) {
         newTasks.title = title ?? 'Last Saved Task';
         newTasks.start = start;
@@ -116,10 +120,6 @@ onMounted(() => {
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-
-    const start = localStorage.getItem('start');
-    const end = localStorage.getItem('end');
-    const title = localStorage.getItem('title');
 });
 
 onUnmounted(() => {
