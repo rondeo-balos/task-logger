@@ -107,16 +107,16 @@ const handleBeforeUnload = (event) => {
 };
 
 onMounted(() => {
-    // const start = localStorage.getItem('start');
-    // const end = localStorage.getItem('end');
-    // const title = localStorage.getItem('title');
+    const start = localStorage.getItem('start');
+    const end = localStorage.getItem('end');
+    const title = localStorage.getItem('title');
 
-    // if( start && end ) {
-    //     newTasks.title = title !== "" ? title : 'Last Saved Task';
-    //     newTasks.start = start;
-    //     newTasks.end = end;
-    //     submitTask();
-    // }
+    if( start && end ) {
+        newTasks.title = title !== "" ? title : 'Last Saved Task';
+        newTasks.start = start;
+        newTasks.end = end;
+        submitTask();
+    }
 
     // window.addEventListener('beforeunload', handleBeforeUnload);
 });
