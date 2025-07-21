@@ -116,7 +116,6 @@ onMounted(() => {
         newTasks.start = start;
         newTasks.end = end;
         submitTask();
-        return;
     }
 
     window.addEventListener('beforeunload', handleBeforeUnload);
