@@ -106,18 +106,19 @@ const handleBeforeUnload = (event) => {
 };
 
 onMounted(() => {
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    const start = localStorage.getItem('start');
-    const end = localStorage.getItem('end');
-    const title = localStorage.getItem('title');
-
     if( start && end ) {
         newTasks.title = title ?? 'Last Saved Task';
         newTasks.start = start;
         newTasks.end = end;
         submitTask();
+        return;
     }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    const start = localStorage.getItem('start');
+    const end = localStorage.getItem('end');
+    const title = localStorage.getItem('title');
 });
 
 onUnmounted(() => {
