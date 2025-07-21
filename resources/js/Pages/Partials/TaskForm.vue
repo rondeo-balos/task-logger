@@ -112,7 +112,7 @@ onMounted(() => {
     const title = localStorage.getItem('title');
 
     if( start && end ) {
-        newTasks.title = title ?? 'Last Saved Task';
+        newTasks.title = title !== "" ? title : 'Last Saved Task';
         newTasks.start = start;
         newTasks.end = end;
         submitTask();
