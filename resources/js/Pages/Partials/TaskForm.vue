@@ -29,7 +29,7 @@ const startTask = () => {
     isStarting.value = true;
     newTasks.start = Math.floor( Date.now()/1000 );
 
-    localStorage.setItem('start', newTasks.start.value);
+    localStorage.setItem('start', newTasks.start);
 
     timerInterval.value = setInterval(() => {
         const elapsedTime = Math.floor( Date.now()/1000 ) - Math.floor(newTasks.start);
