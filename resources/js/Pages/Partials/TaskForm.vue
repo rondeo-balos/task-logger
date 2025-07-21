@@ -43,8 +43,9 @@ const startTask = () => {
 };
 
 const eraseIntervals = () => {
-    localStorage.removeItem('start');
     localStorage.removeItem('end');
+    localStorage.removeItem('start');
+    localStorage.removeItem('title');
     
     if( timerInterval.value )
         clearInterval(timerInterval.value);
