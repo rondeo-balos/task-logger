@@ -22,20 +22,39 @@ const newTasks = useForm({
 
 const timer = ref('00:00:00');
 const timerInterval = ref(null);
+const savedEndInterval = ref(null);
 const isStarting = ref(false);
 
 const startTask = () => {
     isStarting.value = true;
     newTasks.start = Math.floor( Date.now()/1000 );
 
+    localStorage.setItem('start', newTasks.start.value);
+
     timerInterval.value = setInterval(() => {
         const elapsedTime = Math.floor( Date.now()/1000 ) - Math.floor(newTasks.start);
         timer.value = FormatElapsedTime(elapsedTime);
     }, 1000);
+
+    savedEndInterval.value = setInterval(() => {
+        localStorage.setItem('end', Math.floor( Date.now()/1000 ));
+        localStorage.setItem('title', newTasks.title);
+    }, 1000 * 60);
 };
 
+const eraseIntervals = () => {
+    localStorage.removeItem('start');
+    localStorage.removeItem('end');
+    
+    if( timerInterval.value )
+        clearInterval(timerInterval.value);
+    if( savedEndInterval.value )
+    clearInterval(savedEndInterval.value);
+}
+
 const submitTask = () => {
-    clearInterval(timerInterval.value);
+    if( timerInterval.value )
+        clearInterval(timerInterval.value);
     isStarting.value = false;
     newTasks.end = Math.floor( Date.now()/1000 );
     timer.value = '00:00:00';
@@ -43,6 +62,7 @@ const submitTask = () => {
     newTasks.post( route('tasks.create'), {
         onSuccess: page => {
             newTasks.reset();
+            eraseIntervals();
             emit('reload');
         }
     });
@@ -87,6 +107,17 @@ const handleBeforeUnload = (event) => {
 
 onMounted(() => {
     window.addEventListener('beforeunload', handleBeforeUnload);
+
+    const start = localStorage.getItem('start');
+    const end = localStorage.getItem('end');
+    const title = localStorage.getItem('title');
+
+    if( start && end ) {
+        newTasks.title = title ?? 'Last Saved Task';
+        newTasks.start = start;
+        newTasks.end = end;
+        submitTask();
+    }
 });
 
 onUnmounted(() => {
