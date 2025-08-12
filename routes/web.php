@@ -76,7 +76,7 @@ require __DIR__.'/auth.php';
 
 Route::get( '/export', function( Request $request ) {
     $tags = TagsController::list();
-    $tasks = TasksController::list();
+    $tasks = TasksController::list( $request );
 
     return Inertia::render('Export', [
         'tags' => $tags,
