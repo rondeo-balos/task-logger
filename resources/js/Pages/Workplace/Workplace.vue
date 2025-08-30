@@ -21,7 +21,7 @@ const showCreation = ref(false);
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="flex flex-row flex-wrap gap-3 p-3">
+                <div class="flex flex-row flex-wrap gap-3 p-3 justify-center">
                     <Link v-for="workplace in workplaces" :href="route('workplace.set', workplace.id)">
                         <img :src="`https://placehold.co/100x100/000000/ffffff/?text=${workplace.name[0]}`" :class="['size-24 rounded-xl']" />
                     </Link>
