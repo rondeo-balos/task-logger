@@ -15,6 +15,10 @@ class CheckWorkplace {
         if( !Auth::user()->workplaces ) {
             return Redirect::route( 'workplace' );
         }
+
+        if( !session()->has('workplace') ) {
+            return redirect()->route('workplace');
+        }
         
         $workplace_id = session( 'workplace', 1 );
         $workplace = Workplace::find( $workplace_id );
