@@ -25,6 +25,8 @@ const showCreation = ref(false);
                     <Link v-for="workplace in workplaces" :href="route('workplace.set', workplace.id)">
                         <img :src="`https://placehold.co/100x100/000000/ffffff/?text=${workplace.name[0]}`" :class="['size-24 rounded-xl']" />
                     </Link>
+                </div>
+                <div class="flex flex-row flex-wrap gap-3 p-3 justify-center">
                     <div class="size-24 rounded-xl bg-slate-300 flex items-center justify-center cursor-pointer" @click="showCreation = true">
                         <PlusIcon class="size-8 text-gray-600" />
                     </div>
