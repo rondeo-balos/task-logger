@@ -104,7 +104,7 @@ td, th {
                             </tr>
                             <tr v-for="(description, index) in task.description">
                                 <td></td>
-                                <td>{{ description }}</td>
+                                <td v-html="description"></td>
                                 <td colspan="4"></td>
                             </tr>
                         </template>
