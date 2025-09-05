@@ -6,6 +6,7 @@ import TaskList from './Partials/TaskList.vue';
 import Offcanvas from '@/Components/Offcanvas.vue';
 import { ref } from 'vue';
 import Collections from './Partials/Collections.vue';
+import Tags from './Partials/Tags.vue';
 import { PlusIcon } from '@heroicons/vue/24/solid';
 import MasterSidebar from './Partials/MasterSidebar.vue';
 import Queue from './Partials/Queue.vue';
@@ -57,7 +58,7 @@ const handleResume = (title) => {
 
                     <Offcanvas v-model="showTagsCanvas">
                         <h2 class="text-2xl font-bold">Tags</h2>
-
+                        <Tags :tags="tags" />
                     </Offcanvas>
 
                 </div>
