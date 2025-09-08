@@ -16,7 +16,7 @@ function generateCSV() {
 
     // Loop through tasks to populate data
     for (const [week, weekData] of Object.entries(tasks)) {
-        const weekRange = WeekRange(2024, week);
+        const weekRange = WeekRange(2025, week);
         rows.push([`${weekRange.start.toDateString()} - ${weekRange.end.toDateString()}`, '', '', '', 'Weekly Total', FormatElapsedTime(total.weekly[week])]);
 
         for (const [day, dayData] of Object.entries(weekData)) {
@@ -64,18 +64,19 @@ td, th {
     <Head title="Export" />
 
     <div class="w-[1540px] mx-auto border rounded bg-gray-50 m-2">
-        <table class="">
+        <table class="w-full">
             <thead>
                 <tr class="border-b">
                     <th colspan="4"></th>
-                    <th colspan="1">This month's total:</th>
+                    <th colspan="1">Total (filtered):</th>
                     <td colspan="1">{{ FormatElapsedTime(total.monthly) }}</td>
                 </tr>
             </thead>
             <tbody class="divide-y">
                 <template v-for="(weekData, week) in tasks">
                     <tr>
-                        <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th>
+                        <!-- <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th> -->
+                        <th colspan="4"></th>
                         <th colspan="1">Weekly Total:</th>
                         <td colspan="1">{{ FormatElapsedTime(total.weekly[week]) }}</td>
                     </tr>
@@ -114,7 +115,7 @@ td, th {
         </table>
     </div>
 
-    <button class="p-4 bg-blue-600 rounded-full border z-50 fixed bottom-10 right-10 text-white transition-transform hover:scale-125" @click="generateCSV">
+    <!-- <button class="p-4 bg-blue-600 rounded-full border z-50 fixed bottom-10 right-10 text-white transition-transform hover:scale-125" @click="generateCSV">
         <ArrowDownTrayIcon class="size-7" />
-    </button>
+    </button> -->
 </template>
