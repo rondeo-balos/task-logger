@@ -8,53 +8,6 @@ import { ref } from 'vue';
 
 const props = defineProps([ 'tasks', 'tags', 'total' ]);
 
-// Generate CSV content from tasks and download it
-function generateCSV() {
-    const {tasks, tags, total} = props;
-    const rows = [];
-
-    // Add header rows
-    rows.push(['', '', '', '', 'This month\'s total:', FormatElapsedTime(total.monthly)]);
-
-    // Loop through tasks to populate data
-    for (const [week, weekData] of Object.entries(tasks)) {
-        const weekRange = WeekRange(2025, week);
-        rows.push([`${weekRange.start.toDateString()} - ${weekRange.end.toDateString()}`, '', '', '', 'Weekly Total', FormatElapsedTime(total.weekly[week])]);
-
-        for (const [day, dayData] of Object.entries(weekData)) {
-            rows.push(['', '', '', '', `${GetDayName(day)}:`, FormatElapsedTime(total.daily[day])]);
-            rows.push(['Task', '', 'Type', 'From', 'To', 'Total']);
-
-            for (const [i, task] of Object.entries(dayData)) {
-                rows.push([
-                    task.title,
-                    'Task Description',
-                    tags.find(tag => tag.id === task.tag)?.tag || '',
-                    FormatDateTime(task.start * 1000),
-                    FormatDateTime(task.end * 1000),
-                    FormatElapsedTime(task.end - task.start),
-                ]);
-
-                if (task.description) {
-                    for (const description of task.description) {
-                        rows.push(['', description, '', '', '', '']);
-                    }
-                }
-            }
-        }
-    }
-
-    // Convert to CSV format
-    const csvContent = rows.map(row => row.map(item => `"${item || ''}"`).join(',')).join('\n');
-
-    // Trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'tasks_report.csv';
-    link.click();
-}
-
 const captureArea = ref();
 
 const takeScreenshot = async () => {
