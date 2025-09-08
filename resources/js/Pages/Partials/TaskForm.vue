@@ -88,7 +88,7 @@ const removeDescription = (index) => {
 
 watch(() => props.resumedTask, (newTitle) => {
     if( newTitle ) {
-        newTasks.title = 'Continuation - ' + newTitle;
+        newTasks.title = newTitle;
         startTask();
     }
 });

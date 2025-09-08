@@ -58,7 +58,7 @@ const currentWorkplace = ref(usePage().props.current_workplace);
                 </li>
                 <li>
                     <a href="#" class="p-4 py-2 bg-transparent rounded-lg block" @click.prevent="showCollectionCanvas = true">
-                        Collections
+                        Notes
                     </a>
                 </li>
             </ul>

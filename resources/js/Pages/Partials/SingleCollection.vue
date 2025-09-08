@@ -1,6 +1,6 @@
 <script setup>
 import { TrashIcon } from '@heroicons/vue/24/outline';
-import { PencilIcon } from '@heroicons/vue/24/solid';
+import { PencilIcon, PlayIcon } from '@heroicons/vue/24/solid';
 import { nextTick, ref, watchEffect } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 
@@ -80,6 +80,17 @@ const startEdit = async () => {
     input.value?.focus();
 }
 
+const emit = defineEmits(['total-update', 'resumeTask']);
+
+const startTask = () => {
+    emit( 'resumeTask', props.note.content );
+    router.delete( route('notes.delete', [props.note.id]), {
+        onSuccess: page => {
+            router.reload();
+        }
+    });
+};
+
 const handleDelete = () => {
     if( confirm('Are you sure?') ) {
         router.delete( route('notes.delete', [props.note.id]), {
@@ -110,6 +121,9 @@ const handleUpdate = () => {
         <form class="w-full">
             <input type="text" class="bg-transparent p-2 w-full border-0 focus:ring-0 ring-0" tabindex="0" ref="input" v-if="edit" v-model="updateNote.content" @focusout="handleUpdate">
         </form>
+        <button class="p-2 hover:bg-white hover:text-black border rounded-md" @click="startTask" v-if="!edit">
+            <PlayIcon class="size-3" />
+        </button>
         <button class="p-2 hover:bg-white hover:text-black border rounded-md" @click="startEdit" v-if="!edit">
             <PencilIcon class="size-3" />
         </button>

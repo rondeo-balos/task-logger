@@ -119,7 +119,7 @@ onMounted(() => {
 });
 
 const handleResume = () => {
-    emit( 'resumeTask', updateTask.title );
+    emit( 'resumeTask', `Continuation - ${updateTask.title}` );
 };
 </script>
 

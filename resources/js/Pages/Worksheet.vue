@@ -52,8 +52,8 @@ const handleResume = (title) => {
                     </Offcanvas>
 
                     <Offcanvas v-model="showCollectionCanvas">
-                        <h2 class="text-2xl font-bold">Collections</h2>
-                        <Collections :notes="notes" />
+                        <h2 class="text-2xl font-bold">Notes</h2>
+                        <Collections :notes="notes" @resume-task="handleResume" />
                     </Offcanvas>
 
                     <Offcanvas v-model="showTagsCanvas">
