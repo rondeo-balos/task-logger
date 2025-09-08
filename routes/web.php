@@ -81,6 +81,7 @@ Route::get( '/export', function( Request $request ) {
     return Inertia::render('Export', [
         'tags' => $tags,
         'tasks' => $tasks['data'],
-        'total' => $tasks['total']
+        'total' => $tasks['total'],
+        'filter' => $tasks['filter']
     ]);
 })->name( 'export' );

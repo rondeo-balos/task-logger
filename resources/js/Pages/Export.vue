@@ -6,7 +6,7 @@ import { Head } from '@inertiajs/vue3';
 import html2canvas from 'html2canvas';
 import { ref } from 'vue';
 
-const props = defineProps([ 'tasks', 'tags', 'total' ]);
+const props = defineProps([ 'tasks', 'tags', 'total', 'filter' ]);
 
 const captureArea = ref();
 
@@ -38,19 +38,19 @@ td, th {
         <table class="w-full">
             <thead>
                 <tr class="border-b">
-                    <th colspan="4"></th>
+                    <th colspan="4">{{ new Date(props.filter.range[0]).toDateString() }} - {{ new Date(props.filter.range[1]).toDateString() }}</th>
                     <th colspan="1">Total (filtered):</th>
                     <td colspan="1">{{ FormatElapsedTime(total.monthly) }}</td>
                 </tr>
             </thead>
             <tbody class="divide-y">
                 <template v-for="(weekData, week) in tasks">
-                    <tr>
-                        <!-- <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th> -->
+                    <!-- <tr>
+                        <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th>
                         <th colspan="4"></th>
                         <th colspan="1">Weekly Total:</th>
                         <td colspan="1">{{ FormatElapsedTime(total.weekly[week]) }}</td>
-                    </tr>
+                    </tr> -->
                     <template v-for="(dayData, day) in weekData">
                         <tr class="bg-slate-200">
                             <th colspan="4"></th>
