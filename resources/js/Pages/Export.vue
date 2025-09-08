@@ -3,6 +3,8 @@ import { ArrowDownTrayIcon } from '@heroicons/vue/24/solid';
 import { FormatElapsedTime, WeekRange, ParseDateTimeLocalToSeconds, FormatDateTime } from './Partials/Composables/Time';
 import { GetDayName } from './Partials/Composables/Time';
 import { Head } from '@inertiajs/vue3';
+import html2canvas from 'html2canvas';
+import { ref } from 'vue';
 
 const props = defineProps([ 'tasks', 'tags', 'total' ]);
 
@@ -52,6 +54,22 @@ function generateCSV() {
     link.download = 'tasks_report.csv';
     link.click();
 }
+
+const captureArea = ref();
+
+const takeScreenshot = async () => {
+    // Capture element
+    const canvas = await html2canvas(captureArea.value);
+
+    // Convert to image
+    const dataURL = canvas.toDataURL("image/png");
+
+    // Create a link and trigger download
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = "Worklog.png";
+    link.click();
+};
 </script>
 
 <style scoped>
@@ -63,7 +81,7 @@ td, th {
 <template>
     <Head title="Export" />
 
-    <div class="w-[1540px] mx-auto border rounded bg-gray-50 m-2">
+    <div class="max-w-[1540px] w-full mx-auto border rounded bg-gray-50 m-2" ref="captureArea">
         <table class="w-full">
             <thead>
                 <tr class="border-b">
@@ -115,7 +133,7 @@ td, th {
         </table>
     </div>
 
-    <!-- <button class="p-4 bg-blue-600 rounded-full border z-50 fixed bottom-10 right-10 text-white transition-transform hover:scale-125" @click="generateCSV">
+    <button class="p-4 bg-blue-600 rounded-full border z-50 fixed bottom-10 right-10 text-white transition-transform hover:scale-125" @click="takeScreenshot">
         <ArrowDownTrayIcon class="size-7" />
-    </button> -->
+    </button>
 </template>

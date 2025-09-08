@@ -22,6 +22,7 @@
     "dependencies": {
         "@heroicons/vue": "^2.2.0",
         "@tinymce/tinymce-vue": "^6.3.0",
+        "html2canvas": "^1.4.1",
         "vue-tailwind-datepicker": "^1.7.3"
     }
 }
