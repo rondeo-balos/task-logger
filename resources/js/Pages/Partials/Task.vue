@@ -1,21 +1,20 @@
 <script setup>
-import Modal from '@/Components/Modal.vue';
-import { ListBulletIcon, PlayIcon, PlusCircleIcon, TrashIcon } from '@heroicons/vue/24/solid';
+import { ListBulletIcon, PlayIcon, TrashIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import { FormatDateTime, ParseDateTimeLocalToSeconds, FormatElapsedTime } from './Composables/Time';
 import VueTailwindDatepicker from "vue-tailwind-datepicker";
 import TagSelector from '@/Components/TagSelector.vue';
-import Offcanvas from '@/Components/Offcanvas.vue';
-import RichtextEditor from './RichtextEditor.vue';
 
 const props = defineProps([ 'task', 'tags' ]);
 const id = props.task.id;
 
 // Emit event to notify the parent of a time update
-const emit = defineEmits(['total-update', 'resumeTask']);
+const emit = defineEmits(['total-update', 'resumeTask', 'open-description']);
+
 // Calculate task duration and notify parent
 const taskDuration = props.task.end - props.task.start;
+
 emit('total-update', taskDuration);
 
 const updateTask = useForm({
@@ -127,7 +126,7 @@ const handleResume = () => {
     <div class="flex flex-row group items-center justify-between">
         <img :src="task.user && emailHashes[task.user.email] ? `https://gravatar.com/avatar/${emailHashes[task.user.email]}` : 'https://placehold.co/30x30?text=?'" class="size-5 rounded-full ms-2">
         <input type="text" v-model="updateTask.title" class="bg-transparent border-0 ring-0 focus:ring-0 flex-grow md:max-w-[40%]" @focusout="handleUpdate" />
-        <button type="button" @click="openDescription = true">
+        <button type="button" @click="emit('open-description', { id })">
             <ListBulletIcon class="size-6" />
         </button>
         
@@ -140,17 +139,4 @@ const handleResume = () => {
         <button type="button" @click="handleDelete" class="p-2 px-3 text-red-500 hover:text-red-600 flex flex-row gap-1" title="Trash"><TrashIcon class="size-6" /></button>
     </div>
 
-    <Offcanvas v-model="openDescription">
-        <h2 class="text-2xl font-bold">Describe the work you performed</h2>
-        <div class="py-4 space-y-2">
-            <div v-for="(description, index) in updateTask.description">
-                <div class="flex flex-row gap-2">
-                    <RichtextEditor v-model="updateTask.description[index]" @focusout="handleUpdate" />
-                    <!-- <textarea v-model="updateTask.description[index]" class="border rounded w-full bg-transparent" @focusout="handleUpdate"/> -->
-                    <button type="button" @click="removeDescription(index)" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
-                </div>
-            </div>
-            <button type="button" @click="newDescription" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1" ><PlusCircleIcon class="size-6" /> Description</button>
-        </div>
-    </Offcanvas>
 </template>
