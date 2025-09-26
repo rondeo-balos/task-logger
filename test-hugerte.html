@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HugeRTE Test</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <p>Model Value: {{ content }}</p>
+        <hugerte-editor 
+            v-model="content"
+            api-key="2cmhowp6xkrdpv31jc16axuj6suoxdty6m88p3wb5noc07s0"
+        ></hugerte-editor>
+        <button @click="updateContent">Set Content</button>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+        
+        createApp({
+            setup() {
+                const content = ref('Initial content');
+                
+                const updateContent = () => {
+                    content.value = 'Updated content: ' + Date.now();
+                };
+                
+                return {
+                    content,
+                    updateContent
+                };
+            }
+        }).mount('#app');
+    </script>
+    <script src="https://cdn.hugerte.com/5/hugerte.min.js"></script>
+    <script src="https://unpkg.com/@hugerte/hugerte-vue@2/dist/hugerte-vue.umd.js"></script>
+</body>
+</html>
