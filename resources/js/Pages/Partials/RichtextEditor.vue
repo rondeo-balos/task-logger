@@ -1,5 +1,5 @@
 <script setup>
-import Editor from '@tinymce/tinymce-vue';
+import Editor from '@hugerte/hugerte-vue';
 
 const value = defineModel();
 </script>
