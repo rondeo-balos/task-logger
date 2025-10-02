@@ -121,10 +121,10 @@ function syncActiveFromProps() {
             </div>
 
             <div class="flex flex-col-reverse">
-                <div v-for="(dayData, day) in weekData" class="my-3 border rounded-lg divide-y border-[var(--separator)] divide-[var(--separator)] shadow-xl">
+                <div v-for="(dayData, dateKey) in weekData" class="my-3 border rounded-lg divide-y border-[var(--separator)] divide-[var(--separator)] shadow-xl">
                     <div class="p-2 bg-[var(--alt-bg)] flex flex-row items-center justify-between rounded-t-lg">
-                        <b>{{ GetDayName(day) }}</b>
-                        <span>Total: <b>{{ FormatElapsedTime(total.daily[day]) }}</b></span>
+                        <b>{{ GetDayName(dateKey) }}</b>
+                        <span>Total: <b>{{ FormatElapsedTime(total.daily[dateKey]) }}</b></span>
                     </div>
                     <div class="flex flex-col-reverse">
                         <div v-for="task in dayData" :key="task.id" class="first:border-0 first:rounded-b-lg border-b border-[var(--separator)] bg-[var(--card-bg)] hover:bg-[var(--header-bg)]">

@@ -37,7 +37,7 @@ class TasksController extends Controller {
             $data = $data->map( function($group) {
                 return $group->groupBy( function($task) {
                     $date = Carbon::parse($task->start);
-                    return (int) $date->format('d');
+                    return $date->format('Y-m-d'); // Use full date instead of just day
                 })->map(function($dayTasks) {
                     // Convert the day tasks into an object with 'id' as the key
                     return $dayTasks->keyBy('id');
@@ -48,14 +48,14 @@ class TasksController extends Controller {
             foreach ($data as $week => $days) {
                 $weeklyTotal = 0;
 
-                foreach ($days as $day => $tasks) {
+                foreach ($days as $dateKey => $tasks) {
                     // Calculate the total duration for this day
                     $dailyTotal = $tasks->sum(function ($task) {
                         return $task->end - $task->start;
                     });
 
-                    // Store daily total
-                    $dailyTotals[$day] = $dailyTotal;
+                    // Store daily total using the date key
+                    $dailyTotals[$dateKey] = $dailyTotal;
 
                     // Add to weekly total
                     $weeklyTotal += $dailyTotal;

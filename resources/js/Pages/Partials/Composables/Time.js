@@ -24,28 +24,35 @@ export function FormatDateTime(timestamp) {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-// Function to convert numeric day to day name or special cases (Today, Yesterday)
-export function GetDayName(day) {
-    // Create a new Date object for the current month and year, and set the day
-    const date = new Date();
-    const currentYear = date.getFullYear();
-    const currentMonth = date.getMonth();
-
-    // Set the provided day
-    date.setDate(day);
+// Function to convert date string or day number to day name or special cases (Today, Yesterday)
+export function GetDayName(dateInput) {
+    let date;
+    
+    // If it's a date string (YYYY-MM-DD format), parse it
+    if (typeof dateInput === 'string' && dateInput.includes('-')) {
+        date = new Date(dateInput + 'T00:00:00'); // Add time to avoid timezone issues
+    } else {
+        // Legacy support: if it's just a number, assume current month (for backward compatibility)
+        date = new Date();
+        date.setDate(dateInput);
+    }
 
     // Get today's date and yesterday's date
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
 
-    // Check if the provided day is today
-    if (date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate()) {
+    // Check if the provided date is today
+    if (date.getFullYear() === today.getFullYear() && 
+        date.getMonth() === today.getMonth() && 
+        date.getDate() === today.getDate()) {
         return "Today";
     }
 
-    // Check if the provided day is yesterday
-    if (date.getFullYear() === yesterday.getFullYear() && date.getMonth() === yesterday.getMonth() && date.getDate() === yesterday.getDate()) {
+    // Check if the provided date is yesterday
+    if (date.getFullYear() === yesterday.getFullYear() && 
+        date.getMonth() === yesterday.getMonth() && 
+        date.getDate() === yesterday.getDate()) {
         return "Yesterday";
     }
 
