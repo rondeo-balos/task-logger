@@ -15,7 +15,7 @@ const captureArea = ref();
 const sortedTasks = computed(() => {
     // First, get all weeks and sort them in reverse order (to match flex-col-reverse)
     const weekEntries = Object.entries(props.tasks || {})
-        .sort(([weekA], [weekB]) => parseInt(weekB) - parseInt(weekA)); // Sort weeks descending
+        // .sort(([weekA], [weekB]) => parseInt(weekB) - parseInt(weekA)); // Sort weeks descending
     
     const result = {};
     
