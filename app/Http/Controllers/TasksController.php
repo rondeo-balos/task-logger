@@ -35,21 +35,12 @@ class TasksController extends Controller {
 
             // Then group by day and by task id
             $data = $data->map( function($group) {
-                $grouped = $group->groupBy( function($task) {
+                return $group->groupBy( function($task) {
                     $date = Carbon::parse($task->start);
                     return $date->format('Y-m-d'); // Use full date instead of just day
-                });
-                
-                // Convert to array, sort by date keys descending, then back to collection
-                $groupedArray = $grouped->toArray();
-                uksort($groupedArray, function($a, $b) {
-                    return strcmp($b, $a); // Reverse comparison for descending order
-                });
-                $sorted = collect($groupedArray);
-                
-                return $sorted->map(function($dayTasks) {
+                })->map(function($dayTasks) {
                     // Convert the day tasks into an object with 'id' as the key
-                    return collect($dayTasks)->keyBy('id');
+                    return $dayTasks->keyBy('id');
                 });
             });
 
@@ -60,7 +51,7 @@ class TasksController extends Controller {
                 foreach ($days as $dateKey => $tasks) {
                     // Calculate the total duration for this day
                     $dailyTotal = $tasks->sum(function ($task) {
-                        return $task['end'] - $task['start'];
+                        return $task->end - $task->start;
                     });
 
                     // Store daily total using the date key

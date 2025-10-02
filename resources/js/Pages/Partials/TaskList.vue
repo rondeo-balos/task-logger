@@ -11,6 +11,26 @@ import { router, useForm } from '@inertiajs/vue3';
 
 const props = defineProps([ 'tasks', 'tags', 'total' ]);
 
+// Computed property to sort days within each week by date (descending)
+const sortedTasks = computed(() => {
+    const result = {};
+    
+    // Iterate through each week
+    Object.entries(props.tasks || {}).forEach(([weekNum, weekData]) => {
+        // Convert weekData to array of [dateKey, dayData] pairs and sort by date descending
+        const sortedDays = Object.entries(weekData)
+            .sort(([dateA], [dateB]) => dateB.localeCompare(dateA)) // Sort dates descending
+            .reduce((acc, [dateKey, dayData]) => {
+                acc[dateKey] = dayData;
+                return acc;
+            }, {});
+        
+        result[weekNum] = sortedDays;
+    });
+    
+    return result;
+});
+
 watch(
     () => props.tasks,
     () => {
@@ -72,7 +92,7 @@ function toArray(v) {
 }
 
 function findTaskInProps(id) {
-    const weeks = toArray(props.tasks);
+    const weeks = toArray(sortedTasks.value);
     for (const week of weeks) {
         const days = toArray(week);
         for (const day of days) {
@@ -113,14 +133,14 @@ function syncActiveFromProps() {
 
     <div class="flex flex-col-reverse text-white">
 
-        <div v-for="(weekData, week) in tasks">
+        <div v-for="(weekData, week) in sortedTasks">
 
             <div class="p-2 py-1 flex flex-row items-center justify-between mt-8">
                 <b>{{ WeekRange(2025, week).start.toDateString() }} - {{ WeekRange(2025, week).end.toDateString() }}</b>
                 <span>Weekly Total: <b>{{ FormatElapsedTime(total.weekly[week]) }}</b></span>
             </div>
 
-            <div class="flex flex-col-reverse">
+            <div class="flex flex-col">
                 <div v-for="(dayData, dateKey) in weekData" class="my-3 border rounded-lg divide-y border-[var(--separator)] divide-[var(--separator)] shadow-xl">
                     <div class="p-2 bg-[var(--alt-bg)] flex flex-row items-center justify-between rounded-t-lg">
                         <b>{{ GetDayName(dateKey) }}</b>
