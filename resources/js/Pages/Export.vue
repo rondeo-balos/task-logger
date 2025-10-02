@@ -11,11 +11,16 @@ const props = defineProps([ 'tasks', 'tags', 'total', 'filter' ]);
 const captureArea = ref();
 
 // Computed property to sort days within each week by date (descending)
+// AND reverse week order to match TaskList.vue's flex-col-reverse behavior
 const sortedTasks = computed(() => {
+    // First, get all weeks and sort them in reverse order (to match flex-col-reverse)
+    const weekEntries = Object.entries(props.tasks || {})
+        .sort(([weekA], [weekB]) => parseInt(weekB) - parseInt(weekA)); // Sort weeks descending
+    
     const result = {};
     
-    // Iterate through each week
-    Object.entries(props.tasks || {}).forEach(([weekNum, weekData]) => {
+    // Then process each week and sort days within each week
+    weekEntries.forEach(([weekNum, weekData]) => {
         // Convert weekData to array of [dateKey, dayData] pairs and sort by date descending
         const sortedDays = Object.entries(weekData)
             .sort(([dateA], [dateB]) => dateB.localeCompare(dateA)) // Sort dates descending
@@ -28,16 +33,6 @@ const sortedTasks = computed(() => {
     });
     
     return result;
-});
-
-// Computed property to get weeks in descending order (to match main page)
-const sortedWeeks = computed(() => {
-    return Object.entries(sortedTasks.value)
-        .sort(([weekA], [weekB]) => parseInt(weekB) - parseInt(weekA)) // Sort weeks descending
-        .reduce((acc, [weekNum, weekData]) => {
-            acc[weekNum] = weekData;
-            return acc;
-        }, {});
 });
 
 const takeScreenshot = async () => {
@@ -74,7 +69,7 @@ td, th {
                 </tr>
             </thead>
             <tbody class="divide-y">
-                <template v-for="(weekData, week) in sortedWeeks">
+                <template v-for="(weekData, week) in sortedTasks">
                     <!-- <tr>
                         <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th>
                         <th colspan="4"></th>
