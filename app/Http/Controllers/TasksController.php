@@ -60,7 +60,7 @@ class TasksController extends Controller {
                 foreach ($days as $dateKey => $tasks) {
                     // Calculate the total duration for this day
                     $dailyTotal = $tasks->sum(function ($task) {
-                        return $task->end - $task->start;
+                        return $task['end'] - $task['start'];
                     });
 
                     // Store daily total using the date key
