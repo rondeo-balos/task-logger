@@ -4,11 +4,31 @@ import { FormatElapsedTime, WeekRange, ParseDateTimeLocalToSeconds, FormatDateTi
 import { GetDayName } from './Partials/Composables/Time';
 import { Head } from '@inertiajs/vue3';
 import html2canvas from 'html2canvas';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps([ 'tasks', 'tags', 'total', 'filter' ]);
 
 const captureArea = ref();
+
+// Computed property to sort days within each week by date (descending)
+const sortedTasks = computed(() => {
+    const result = {};
+    
+    // Iterate through each week
+    Object.entries(props.tasks || {}).forEach(([weekNum, weekData]) => {
+        // Convert weekData to array of [dateKey, dayData] pairs and sort by date descending
+        const sortedDays = Object.entries(weekData)
+            .sort(([dateA], [dateB]) => dateB.localeCompare(dateA)) // Sort dates descending
+            .reduce((acc, [dateKey, dayData]) => {
+                acc[dateKey] = dayData;
+                return acc;
+            }, {});
+        
+        result[weekNum] = sortedDays;
+    });
+    
+    return result;
+});
 
 const takeScreenshot = async () => {
     // Capture element
@@ -44,18 +64,18 @@ td, th {
                 </tr>
             </thead>
             <tbody class="divide-y">
-                <template v-for="(weekData, week) in tasks">
+                <template v-for="(weekData, week) in sortedTasks">
                     <!-- <tr>
                         <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th>
                         <th colspan="4"></th>
                         <th colspan="1">Weekly Total:</th>
                         <td colspan="1">{{ FormatElapsedTime(total.weekly[week]) }}</td>
                     </tr> -->
-                    <template v-for="(dayData, day) in weekData">
+                    <template v-for="(dayData, dateKey) in weekData">
                         <tr class="bg-slate-200">
                             <th colspan="4"></th>
-                            <th colspan="1">{{ GetDayName(day) }}:</th>
-                            <td colspan="1">{{ FormatElapsedTime(total.daily[day]) }}</td>
+                            <th colspan="1">{{ GetDayName(dateKey) }}:</th>
+                            <td colspan="1">{{ FormatElapsedTime(total.daily[dateKey]) }}</td>
                         </tr>
                         <tr>
                             <th>Task</th>
