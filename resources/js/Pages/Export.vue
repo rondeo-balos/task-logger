@@ -30,6 +30,16 @@ const sortedTasks = computed(() => {
     return result;
 });
 
+// Computed property to get weeks in descending order (to match main page)
+const sortedWeeks = computed(() => {
+    return Object.entries(sortedTasks.value)
+        .sort(([weekA], [weekB]) => parseInt(weekB) - parseInt(weekA)) // Sort weeks descending
+        .reduce((acc, [weekNum, weekData]) => {
+            acc[weekNum] = weekData;
+            return acc;
+        }, {});
+});
+
 const takeScreenshot = async () => {
     // Capture element
     const canvas = await html2canvas(captureArea.value);
@@ -64,7 +74,7 @@ td, th {
                 </tr>
             </thead>
             <tbody class="divide-y">
-                <template v-for="(weekData, week) in sortedTasks">
+                <template v-for="(weekData, week) in sortedWeeks">
                     <!-- <tr>
                         <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th>
                         <th colspan="4"></th>
