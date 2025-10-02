@@ -17,7 +17,8 @@ const sortedTasks = computed(() => {
     const weekEntries = Object.entries(props.tasks || {})
         .sort(([weekA], [weekB]) => parseInt(weekB) - parseInt(weekA)); // Sort weeks descending
     
-    const result = {};
+    // Use an array to preserve the week order, then convert back to object
+    const sortedWeeks = [];
     
     // Then process each week and sort days within each week
     weekEntries.forEach(([weekNum, weekData]) => {
@@ -29,10 +30,11 @@ const sortedTasks = computed(() => {
                 return acc;
             }, {});
         
-        result[weekNum] = sortedDays;
+        sortedWeeks.push([weekNum, sortedDays]);
     });
     
-    return result;
+    // Convert back to object while preserving order
+    return Object.fromEntries(sortedWeeks);
 });
 
 const takeScreenshot = async () => {
