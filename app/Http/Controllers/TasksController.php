@@ -38,7 +38,8 @@ class TasksController extends Controller {
                 return $group->groupBy( function($task) {
                     $date = Carbon::parse($task->start);
                     return $date->format('Y-m-d'); // Use full date instead of just day
-                })->map(function($dayTasks) {
+                })->sortKeysDesc() // Sort dates in descending order (newest first)
+                ->map(function($dayTasks) {
                     // Convert the day tasks into an object with 'id' as the key
                     return $dayTasks->keyBy('id');
                 });;
