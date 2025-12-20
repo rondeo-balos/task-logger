@@ -158,12 +158,12 @@ function syncActiveFromProps() {
 
     </div>
 
-    <Offcanvas v-model="ocOpen">
+    <Offcanvas v-model="ocOpen" @close="saveDescriptions">
         <h2 class="text-2xl font-bold">Describe the work you performed</h2>
         <div class="py-4 space-y-2">
             <div v-for="(description, index) in form.description" :key="`description-${index}`">
                 <div class="flex flex-row gap-2">
-                    <RichtextEditor :key="`rte-${index}`" v-model="form.description[index]" @focusout="saveDescriptions" />
+                    <RichtextEditor :key="`rte-${index}`" v-model="form.description[index]" />
                     <!-- <textarea v-model="updateTask.description[index]" class="border rounded w-full bg-transparent" @focusout="handleUpdate"/> -->
                     <button type="button" @click="removeDescription(index)" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto">
                         <TrashIcon class="size-6" />

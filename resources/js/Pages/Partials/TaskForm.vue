@@ -148,7 +148,7 @@ onUnmounted(() => {
         <div class="py-4 space-y-2">
             <div v-for="(description, index) in newTasks.description">
                 <div class="flex flex-row gap-2">
-                    <RichtextEditor v-model="newTasks.description[index]" @focusout="handleUpdate" />
+                    <RichtextEditor v-model="newTasks.description[index]"/>
                     <!-- <textarea v-model="newTasks.description[index]" class="border rounded w-full bg-transparent" /> -->
                     <button type="button" @click="removeDescription(index)" class="p-2 px-3 text-red-600 hover:text-red-500 flex flex-row gap-1 ms-auto" ><TrashIcon class="size-6" /></button>
                 </div>
