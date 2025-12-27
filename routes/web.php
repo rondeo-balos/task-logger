@@ -41,6 +41,11 @@ Route::middleware('auth')->group(function() {
         ];
         return Inertia::render('Worksheet', $data);
     })->name( 'home' )->middleware(CheckWorkplace::class.':read');
+
+    // Keep the session alive while the user has the app open
+    Route::get('/heartbeat', function () {
+        return response()->noContent();
+    })->name('heartbeat');
 });
 
 

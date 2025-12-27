@@ -25,3 +25,11 @@ createInertiaApp({
         color: 'green',
     },
 });
+
+// Periodically ping the server to keep the Laravel session from expiring
+if (window.axios) {
+    const FIVE_MINUTES = 5 * 60 * 1000;
+    setInterval(() => {
+        window.axios.get('/heartbeat').catch(() => {});
+    }, FIVE_MINUTES);
+}
