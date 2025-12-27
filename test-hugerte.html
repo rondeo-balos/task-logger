@@ -10,6 +10,7 @@
         <hugerte-editor 
             v-model="content"
             api-key="2cmhowp6xkrdpv31jc16axuj6suoxdty6m88p3wb5noc07s0"
+            :init="editorInit"
         ></hugerte-editor>
         <button @click="updateContent">Set Content</button>
     </div>
@@ -20,6 +21,10 @@
         createApp({
             setup() {
                 const content = ref('Initial content');
+                const editorInit = {
+                    content_style: 'body { font-size: 10pt; }',
+                    fontsize_formats: '10pt 11pt 12pt 14pt 16pt 18pt 24pt 36pt'
+                };
                 
                 const updateContent = () => {
                     content.value = 'Updated content: ' + Date.now();
@@ -27,6 +32,7 @@
                 
                 return {
                     content,
+                    editorInit,
                     updateContent
                 };
             }

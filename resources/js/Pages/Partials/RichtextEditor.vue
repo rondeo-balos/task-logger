@@ -15,6 +15,10 @@ const value = defineModel();
                 'visualblocks', 'wordcount'
             ],
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            // Default editor content font size
+            content_style: 'body { font-size: 10pt; }',
+            // Offer sizes with 10pt as the first option
+            fontsize_formats: '10pt 11pt 12pt 14pt 16pt 18pt 24pt 36pt',
             tinycomments_mode: 'embedded',
             tinycomments_author: 'Author name',
             mergetags_list: [
