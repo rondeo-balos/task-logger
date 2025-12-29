@@ -10,12 +10,41 @@ const props = defineProps([ 'tasks', 'tags', 'total', 'filter' ]);
 
 const captureArea = ref();
 
+// Helper function to determine the correct year for a week number
+const getYearForWeek = (weekNum) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-11
+    
+    // If we're in December (month 11) and the week is 1-10, it's likely next year
+    if (currentMonth === 11 && weekNum <= 10) {
+        return currentYear + 1;
+    }
+    
+    // If we're in January (month 0) and the week is > 50, it's likely last year
+    if (currentMonth === 0 && weekNum > 50) {
+        return currentYear - 1;
+    }
+    
+    return currentYear;
+};
+
 // Computed property to sort days within each week by date (descending)
 // AND reverse week order to match TaskList.vue's flex-col-reverse behavior
 const sortedTasks = computed(() => {
-    // Get all weeks and sort them in reverse order (to match flex-col-reverse)
+    // Get all weeks and sort them by actual date (descending - newest first for table display)
     return Object.entries(props.tasks || {})
-        .sort(([weekA], [weekB]) => parseInt(weekB) - parseInt(weekA)) // Sort weeks descending
+        .sort(([weekA], [weekB]) => {
+            const yearA = getYearForWeek(parseInt(weekA));
+            const yearB = getYearForWeek(parseInt(weekB));
+            
+            // Get actual start dates for accurate comparison
+            const dateA = WeekRange(yearA, parseInt(weekA)).start;
+            const dateB = WeekRange(yearB, parseInt(weekB)).start;
+            
+            // Sort by actual date (descending - newest first)
+            return dateB - dateA;
+        })
         .map(([weekNum, weekData]) => {
             // Sort days within each week
             const sortedDays = Object.entries(weekData)
@@ -65,7 +94,7 @@ td, th {
             <tbody class="divide-y">
                 <template v-for="[week, weekData] in sortedTasks">
                     <!-- <tr>
-                        <th colspan="4">{{ WeekRange(2024, week).start.toDateString() }} - {{ WeekRange(2024, week).end.toDateString() }}</th>
+                        <th colspan="4">{{ WeekRange(getYearForWeek(week), week).start.toDateString() }} - {{ WeekRange(getYearForWeek(week), week).end.toDateString() }}</th>
                         <th colspan="4"></th>
                         <th colspan="1">Weekly Total:</th>
                         <td colspan="1">{{ FormatElapsedTime(total.weekly[week]) }}</td>

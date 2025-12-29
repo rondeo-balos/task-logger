@@ -11,24 +11,51 @@ import { router, useForm } from '@inertiajs/vue3';
 
 const props = defineProps([ 'tasks', 'tags', 'total' ]);
 
+// Helper function to determine the correct year for a week number
+const getYearForWeek = (weekNum) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-11
+    
+    // If we're in December (month 11) and the week is 1-10, it's likely next year
+    if (currentMonth === 11 && weekNum <= 10) {
+        return currentYear + 1;
+    }
+    
+    // If we're in January (month 0) and the week is > 50, it's likely last year
+    if (currentMonth === 0 && weekNum > 50) {
+        return currentYear - 1;
+    }
+    
+    return currentYear;
+};
+
 // Computed property to sort days within each week by date (descending)
 const sortedTasks = computed(() => {
-    const result = {};
-    
-    // Iterate through each week
-    Object.entries(props.tasks || {}).forEach(([weekNum, weekData]) => {
-        // Convert weekData to array of [dateKey, dayData] pairs and sort by date descending
-        const sortedDays = Object.entries(weekData)
-            .sort(([dateA], [dateB]) => dateB.localeCompare(dateA)) // Sort dates descending
-            .reduce((acc, [dateKey, dayData]) => {
-                acc[dateKey] = dayData;
-                return acc;
-            }, {});
-        
-        result[weekNum] = sortedDays;
-    });
-    
-    return result;
+    // Sort weeks chronologically by their actual start date (ascending, because flex-col-reverse will reverse it)
+    return Object.entries(props.tasks || {})
+        .sort(([weekA], [weekB]) => {
+            const yearA = getYearForWeek(parseInt(weekA));
+            const yearB = getYearForWeek(parseInt(weekB));
+            
+            // Get actual start dates for accurate comparison
+            const dateA = WeekRange(yearA, parseInt(weekA)).start;
+            const dateB = WeekRange(yearB, parseInt(weekB)).start;
+            
+            // Sort by actual date (ascending - oldest first)
+            return dateA - dateB;
+        })
+        .map(([weekNum, weekData]) => {
+            // Convert weekData to array of [dateKey, dayData] pairs and sort by date descending
+            const sortedDays = Object.entries(weekData)
+                .sort(([dateA], [dateB]) => dateB.localeCompare(dateA)) // Sort dates descending
+                .reduce((acc, [dateKey, dayData]) => {
+                    acc[dateKey] = dayData;
+                    return acc;
+                }, {});
+            
+            return [weekNum, sortedDays];
+        });
 });
 
 watch(
@@ -133,10 +160,10 @@ function syncActiveFromProps() {
 
     <div class="flex flex-col-reverse text-white">
 
-        <div v-for="(weekData, week) in sortedTasks">
+        <div v-for="[week, weekData] in sortedTasks" :key="week">
 
             <div class="p-2 py-1 flex flex-row items-center justify-between mt-8">
-                <b>{{ WeekRange(2025, week).start.toDateString() }} - {{ WeekRange(2025, week).end.toDateString() }}</b>
+                <b>{{ WeekRange(getYearForWeek(week), week).start.toDateString() }} - {{ WeekRange(getYearForWeek(week), week).end.toDateString() }}</b>
                 <span>Weekly Total: <b>{{ FormatElapsedTime(total.weekly[week]) }}</b></span>
             </div>
 
