@@ -119,9 +119,9 @@ function toArray(v) {
 }
 
 function findTaskInProps(id) {
-    const weeks = toArray(sortedTasks.value);
-    for (const week of weeks) {
-        const days = toArray(week);
+    // sortedTasks is now an array of [weekNum, weekData] tuples
+    for (const [weekNum, weekData] of sortedTasks.value) {
+        const days = toArray(weekData);
         for (const day of days) {
             const tasksArr = toArray(day);
             const t = tasksArr.find(x => x && x.id === id);
