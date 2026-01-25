@@ -97,6 +97,10 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
                         View demo <PlayIcon class="size-4" />
                     </Link>
                 </div>
+                <div class="relative mt-10 flex justify-center">
+                    <img src="/images/hero.png" alt="Task Logger hero illustration" class="w-full max-w-5xl rounded-xl shadow-2xl" />
+                    <img src="/images/board-editor.png" alt="Board editor overlay" class="absolute bottom-2 right-2 md:bottom-6 md:right-8 max-w-3/4 md:max-w-1/2 h-[80%] rounded-xl shadow-2xl border border-white/20" />
+                </div>
                 <div class="mt-10 bg-white rounded-3xl shadow-2xl p-6 border border-white/60">
                     <div class="grid md:grid-cols-3 gap-4 text-[#0f172a]">
                         <div class="rounded-2xl bg-[#f5f3ff] p-4 shadow-sm">
