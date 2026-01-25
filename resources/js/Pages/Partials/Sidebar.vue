@@ -46,6 +46,11 @@ const currentWorkplace = ref(usePage().props.current_workplace);
                         Time Tracker
                     </a>
                 </li>
+                <li>
+                    <a :href="route('boards.index')" :class="['p-4 py-2 rounded-lg block', route().current('boards.index') ? 'bg-blue-700' : 'hover:bg-gray-900']">
+                        Task Manager
+                    </a>
+                </li>
                 <!-- <li>
                     <a href="#" class="p-4 py-2 rounded-lg block" @click.prevent="showPending = true">
                         Pending Tasks

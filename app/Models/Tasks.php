@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tasks extends Model {
     protected $table = 'tasks';
-    protected $fillable = ['title', 'description', 'tag', 'start', 'end', 'workplace_id', 'user_id'];
+    protected $fillable = ['title', 'description', 'tag', 'start', 'end', 'workplace_id', 'user_id', 'board_id'];
 
     protected function description(): Attribute {
         return Attribute::make(
@@ -50,5 +50,9 @@ class Tasks extends Model {
 
     public function user() {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function board() {
+        return $this->belongsTo(Board::class, 'board_id');
     }
 }

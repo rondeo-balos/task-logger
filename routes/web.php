@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\WorkplaceController;
+use App\Http\Controllers\BoardController;
 use App\Http\Middleware\CheckWorkplace;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,10 +38,14 @@ Route::middleware('auth')->group(function() {
             'tasks' => $tasks['data'],
             'total' => $tasks['total'],
             'filter' => $tasks['filter'],
-            'users' => $tasks['users']
+            'users' => $tasks['users'],
+            'resume_title' => $request->query('resume_title'),
+            'resume_board_id' => $request->query('resume_board_id'),
         ];
         return Inertia::render('Worksheet', $data);
     })->name( 'home' )->middleware(CheckWorkplace::class.':read');
+
+    Route::get('/task-manager', [BoardController::class, 'index'])->name('boards.index')->middleware(CheckWorkplace::class.':read');
 
     // Keep the session alive while the user has the app open
     Route::get('/heartbeat', function () {
@@ -52,11 +57,14 @@ Route::middleware('auth')->group(function() {
 Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set')->middleware([ 'auth' ]);
 Route::post('/workplace/new', [WorkplaceController::class, 'create'])->name('workplace.create');
 
-    Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
-        Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');
-        Route::patch('/workplace/{id}', [WorkplaceController::class, 'update'])->name('workplace.update');
-        Route::post( '/workplace/give/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
-        Route::post( '/workplace/revoke/{id}', [WorkplaceController::class, 'revokeWorkplacePermissionTo'])->name('workplace.revoke');
+Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
+    Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');
+    Route::patch('/workplace/{id}', [WorkplaceController::class, 'update'])->name('workplace.update');
+    Route::post( '/workplace/give/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
+    Route::post( '/workplace/revoke/{id}', [WorkplaceController::class, 'revokeWorkplacePermissionTo'])->name('workplace.revoke');
+    Route::post('/task-manager', [BoardController::class, 'store'])->name('boards.store');
+    Route::patch('/task-manager/{board}', [BoardController::class, 'update'])->name('boards.update');
+    Route::delete('/task-manager/{board}', [BoardController::class, 'destroy'])->name('boards.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

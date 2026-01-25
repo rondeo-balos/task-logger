@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Tasks;
 use App\Models\User;
+use App\Models\Board;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -119,6 +120,15 @@ class TasksController extends Controller {
 
     public function create( Request $request ) {
         $data = $request->all();
+        if (!empty($data['board_id'])) {
+            $boardId = (int) $data['board_id'];
+            $hasBoard = Board::where('id', $boardId)
+                ->where('workplace_id', session('workplace'))
+                ->exists();
+            if (! $hasBoard) {
+                unset($data['board_id']);
+            }
+        }
 
         $id = Tasks::create( $data );
 
@@ -135,6 +145,15 @@ class TasksController extends Controller {
         $data = $request->all();
         unset($data['start_raw']);
         unset($data['end_raw']);
+        if (!empty($data['board_id'])) {
+            $boardId = (int) $data['board_id'];
+            $hasBoard = Board::where('id', $boardId)
+                ->where('workplace_id', session('workplace'))
+                ->exists();
+            if (! $hasBoard) {
+                unset($data['board_id']);
+            }
+        }
 
         Tasks::find($id)->update( $data );
 

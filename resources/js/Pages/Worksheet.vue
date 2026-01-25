@@ -4,7 +4,7 @@ import Sidebar from './Partials/Sidebar.vue';
 import TaskForm from './Partials/TaskForm.vue';
 import TaskList from './Partials/TaskList.vue';
 import Offcanvas from '@/Components/Offcanvas.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Collections from './Partials/Collections.vue';
 import Tags from './Partials/Tags.vue';
 import { PlusIcon } from '@heroicons/vue/24/solid';
@@ -12,21 +12,26 @@ import MasterSidebar from './Partials/MasterSidebar.vue';
 import Queue from './Partials/Queue.vue';
 import NotificationStack from './Partials/NotificationStack.vue';
 
-const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total', 'status' ]);
+const props = defineProps([ 'workplaces', 'tasks', 'tags', 'notes', 'total', 'status', 'resume_title', 'resume_board_id' ]);
 
 const showCollectionCanvas = ref(false);
 const showTagsCanvas = ref(false);
 const showPending = ref(false);
 
-const resumedTask = ref('');
+const resumedTask = ref(null);
 const handleResume = (title) => {
-    // Call an event to TaskForm
-    resumedTask.value = title;
-}
+    resumedTask.value = { title };
+};
+
+onMounted(() => {
+    if (props.resume_title) {
+        resumedTask.value = { title: props.resume_title, boardId: props.resume_board_id ?? null };
+    }
+});
 </script>
 
 <template>
-    <Head title="Welcome" />
+    <Head title="Time Tracker" />
 
     <div class="w-screen min-h-screen max-h-screen bg-[var(--master-bg)] flex flex-row">
 

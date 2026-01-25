@@ -19,6 +19,7 @@ const newTasks = useForm({
     tag: props.tags[0].id,
     start: 0,
     end: 0,
+    board_id: null,
 });
 
 const timer = ref('00:00:00');
@@ -33,6 +34,7 @@ const startTask = () => {
     newTasks.start = Math.floor( Date.now()/1000 );
 
     localStorage.setItem('start', newTasks.start);
+    localStorage.setItem('board_id', newTasks.board_id ?? '');
 
     timerInterval.value = setInterval(() => {
         const elapsedTime = Math.floor( Date.now()/1000 ) - Math.floor(newTasks.start);
@@ -49,6 +51,7 @@ const eraseIntervals = () => {
     localStorage.removeItem('end');
     localStorage.removeItem('start');
     localStorage.removeItem('title');
+    localStorage.removeItem('board_id');
     
     if( timerInterval.value )
         clearInterval(timerInterval.value);
@@ -126,12 +129,13 @@ const cancelStartTimeEdit = () => {
     isEditingStartTime.value = false;
 };
 
-watch(() => props.resumedTask, (newTitle) => {
-    if( newTitle ) {
-        newTasks.title = newTitle;
-        startTask();
-    }
-});
+watch(() => props.resumedTask, (payload) => {
+    if( !payload ) return;
+    const data = typeof payload === 'object' ? payload : { title: payload };
+    newTasks.title = data.title || '';
+    newTasks.board_id = data.boardId !== undefined && data.boardId !== null ? Number(data.boardId) : null;
+    startTask();
+}, { immediate: true });
 
 /**
  * Handle closure, reloading or navigation
@@ -151,11 +155,13 @@ onMounted(() => {
     const start = localStorage.getItem('start');
     const end = localStorage.getItem('end');
     const title = localStorage.getItem('title');
+    const boardId = localStorage.getItem('board_id');
 
     if( start && end ) {
         newTasks.title = title !== "" ? title : 'Last Saved Task';
         newTasks.start = start;
         newTasks.end = end;
+        newTasks.board_id = boardId ? Number(boardId) : null;
         submitTask();
     }
 
