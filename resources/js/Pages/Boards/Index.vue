@@ -34,6 +34,8 @@ const editForm = useForm({
 });
 editForm.transform((data) => ({ ...data, _method: 'patch' }));
 
+const editTab = ref('details');
+
 const statusForm = useForm({ status: '' });
 const deleteForm = useForm({});
 
@@ -52,6 +54,8 @@ const groupedBoards = computed(() => {
 });
 
 const statusLabel = (status) => status.replace('-', ' ');
+
+const userInitials = (user) => (user.name || user.email || '?').slice(0, 2).toUpperCase();
 
 const descriptionSnippet = (board) => {
     const raw = Array.isArray(board.description)
@@ -79,6 +83,7 @@ const openCreate = () => {
     createForm.reset();
     createForm.status = props.statuses?.[0] ?? 'pending';
     createForm.description = [''];
+    createForm.assigned_users = [];
     showCreate.value = true;
 };
 
@@ -104,6 +109,7 @@ const openEdit = (board) => {
     editForm.due_date = board.due_date ? board.due_date.substring(0, 10) : '';
     editForm.assigned_users = (board.users || []).map((u) => u.id);
     editForm.attachments = [];
+    editTab.value = 'details';
     showEdit.value = true;
 };
 
@@ -130,6 +136,20 @@ const deleteBoard = (board) => {
     deleteForm.delete(route('boards.destroy', board.id), {
         preserveScroll: true,
     });
+};
+
+const toggleUserSelection = (form, userId) => {
+    const list = form.assigned_users || [];
+    const exists = list.includes(userId);
+    form.assigned_users = exists ? list.filter((id) => id !== userId) : [...list, userId];
+};
+
+const formatTaskRange = (task) => {
+    const start = task.start ? new Date(task.start * 1000) : null;
+    const end = task.end ? new Date(task.end * 1000) : null;
+    if (!start || !end) return '';
+    const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    return `${fmt(start)} → ${fmt(end)}`;
 };
 </script>
 
@@ -228,26 +248,46 @@ const deleteBoard = (board) => {
                 <RichtextEditor v-model="createForm.description[0]" />
             </div>
             <div class="flex flex-wrap gap-3">
-                <div>
+                <div class="flex-1 min-w-[160px]">
                     <label class="text-sm text-gray-300">Status</label>
-                    <select v-model="createForm.status" class="bg-transparent border border-[var(--separator)] rounded px-2 py-1 text-white">
+                    <select v-model="createForm.status" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white">
                         <option v-for="status in statuses" :key="status" :value="status" class="bg-[var(--card-bg)] text-white">
                             {{ statusLabel(status) }}
                         </option>
                     </select>
                 </div>
-                <div>
+                <div class="flex-1 min-w-[160px]">
                     <label class="text-sm text-gray-300">Due date</label>
-                    <input v-model="createForm.due_date" type="date" class="bg-transparent border border-[var(--separator)] rounded px-2 py-1 text-white" />
+                    <input v-model="createForm.due_date" type="date" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white" />
                 </div>
             </div>
             <div>
-                <label class="text-sm text-gray-300">Assign users</label>
-                <select multiple v-model="createForm.assigned_users" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-1 text-white">
-                    <option v-for="user in users" :key="user.id" :value="user.id" class="bg-[var(--card-bg)] text-white">
-                        {{ user.name }} ({{ user.email }})
-                    </option>
-                </select>
+                <div class="flex items-center justify-between text-sm text-gray-300">
+                    <span>Assign users</span>
+                    <span class="text-xs text-gray-400">{{ createForm.assigned_users.length }} selected</span>
+                </div>
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                    <button
+                        v-for="user in users"
+                        :key="user.id"
+                        type="button"
+                        @click="toggleUserSelection(createForm, user.id)"
+                        :class="[
+                            'flex items-center gap-2 w-full rounded-lg border px-2 py-2 text-left transition',
+                            createForm.assigned_users.includes(user.id)
+                                ? 'border-blue-500 bg-blue-900/40 text-white'
+                                : 'border-[var(--separator)] bg-[var(--body-bg)] text-gray-200 hover:border-blue-700'
+                        ]"
+                    >
+                        <span class="size-8 rounded-full bg-blue-800 text-white flex items-center justify-center font-semibold text-xs">
+                            {{ userInitials(user) }}
+                        </span>
+                        <span class="text-sm leading-tight">
+                            <div class="font-semibold">{{ user.name }}</div>
+                            <div class="text-[11px] text-gray-400">{{ user.email }}</div>
+                        </span>
+                    </button>
+                </div>
             </div>
             <div>
                 <label class="text-sm text-gray-300">Attachments</label>
@@ -273,36 +313,87 @@ const deleteBoard = (board) => {
                 <label class="text-sm text-gray-300">Description</label>
                 <RichtextEditor v-model="editForm.description[0]" />
             </div>
-            <div class="flex flex-wrap gap-3">
-                <div>
-                    <label class="text-sm text-gray-300">Status</label>
-                    <select v-model="editForm.status" class="bg-transparent border border-[var(--separator)] rounded px-2 py-1 text-white">
-                        <option v-for="status in statuses" :key="status" :value="status" class="bg-[var(--card-bg)] text-white">
-                            {{ statusLabel(status) }}
-                        </option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-sm text-gray-300">Due date</label>
-                    <input v-model="editForm.due_date" type="date" class="bg-transparent border border-[var(--separator)] rounded px-2 py-1 text-white" />
-                </div>
-            </div>
-            <div>
-                <label class="text-sm text-gray-300">Assign users</label>
-                <select multiple v-model="editForm.assigned_users" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-1 text-white">
-                    <option v-for="user in users" :key="user.id" :value="user.id" class="bg-[var(--card-bg)] text-white">
-                        {{ user.name }} ({{ user.email }})
-                    </option>
-                </select>
-            </div>
-            <div>
-                <label class="text-sm text-gray-300">Add attachments</label>
-                <input type="file" multiple class="text-sm text-gray-300" @change="handleEditFiles" />
-            </div>
-            <div class="flex justify-end">
-                <button type="button" class="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 text-white" :disabled="editForm.processing" @click="submitEdit">
-                    Save changes
+            <div class="flex items-center gap-3 border-b border-[var(--separator)] pb-2">
+                <button type="button" :class="['text-sm px-3 py-1 rounded-full', editTab === 'details' ? 'bg-blue-700 text-white' : 'bg-[var(--card-bg)] text-gray-300']" @click="editTab = 'details'">
+                    Details
                 </button>
+                <button type="button" :class="['text-sm px-3 py-1 rounded-full', editTab === 'logs' ? 'bg-blue-700 text-white' : 'bg-[var(--card-bg)] text-gray-300']" @click="editTab = 'logs'">
+                    Logged tasks
+                </button>
+            </div>
+
+            <div v-if="editTab === 'details'" class="space-y-3">
+                <div class="flex flex-wrap gap-3">
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="text-sm text-gray-300">Status</label>
+                        <select v-model="editForm.status" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white">
+                            <option v-for="status in statuses" :key="status" :value="status" class="bg-[var(--card-bg)] text-white">
+                                {{ statusLabel(status) }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="text-sm text-gray-300">Due date</label>
+                        <input v-model="editForm.due_date" type="date" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white" />
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between text-sm text-gray-300">
+                        <span>Assign users</span>
+                        <span class="text-xs text-gray-400">{{ editForm.assigned_users.length }} selected</span>
+                    </div>
+                    <div class="mt-2 grid grid-cols-2 gap-2">
+                        <button
+                            v-for="user in users"
+                            :key="user.id"
+                            type="button"
+                            @click="toggleUserSelection(editForm, user.id)"
+                            :class="[
+                                'flex items-center gap-2 w-full rounded-lg border px-2 py-2 text-left transition',
+                                editForm.assigned_users.includes(user.id)
+                                    ? 'border-blue-500 bg-blue-900/40 text-white'
+                                    : 'border-[var(--separator)] bg-[var(--body-bg)] text-gray-200 hover:border-blue-700'
+                            ]"
+                        >
+                            <span class="size-8 rounded-full bg-blue-800 text-white flex items-center justify-center font-semibold text-xs">
+                                {{ userInitials(user) }}
+                            </span>
+                            <span class="text-sm leading-tight">
+                                <div class="font-semibold">{{ user.name }}</div>
+                                <div class="text-[11px] text-gray-400">{{ user.email }}</div>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-300">Add attachments</label>
+                    <input type="file" multiple class="text-sm text-gray-300" @change="handleEditFiles" />
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" class="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 text-white" :disabled="editForm.processing" @click="submitEdit">
+                        Save changes
+                    </button>
+                </div>
+            </div>
+
+            <div v-else class="space-y-3">
+                <div v-if="activeBoard.tasks?.length" class="divide-y divide-[var(--separator)] border border-[var(--separator)] rounded-lg overflow-hidden">
+                    <div v-for="task in activeBoard.tasks" :key="task.id" class="p-3 bg-[var(--body-bg)] text-sm text-gray-200">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="font-semibold text-white">{{ task.title }}</div>
+                                <div class="text-xs text-gray-400">{{ formatTaskRange(task) }}</div>
+                            </div>
+                            <div class="text-xs text-gray-300">
+                                {{ FormatElapsedTime((task.end - task.start) || 0) }}
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-1" v-if="task.user">
+                            {{ task.user.name }}
+                        </div>
+                    </div>
+                </div>
+                <p v-else class="text-sm text-gray-400">No logged tasks yet.</p>
             </div>
         </div>
     </Offcanvas>
