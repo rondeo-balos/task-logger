@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function() {
     })->name('heartbeat');
 });
 
+Route::get('/landing', fn () => Inertia::render('Landing'))->name('landing');
 
 Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set')->middleware([ 'auth' ]);
 Route::post('/workplace/new', [WorkplaceController::class, 'create'])->name('workplace.create');
