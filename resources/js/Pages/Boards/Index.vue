@@ -438,6 +438,9 @@ const handleDrop = (status) => {
                 <button type="button" :class="['text-sm px-3 py-1 rounded-full', editTab === 'logs' ? 'bg-blue-700 text-white' : 'bg-[var(--card-bg)] text-gray-300']" @click="editTab = 'logs'">
                     Logged tasks
                 </button>
+                <button type="button" :class="['text-sm px-3 py-1 rounded-full', editTab === 'history' ? 'bg-blue-700 text-white' : 'bg-[var(--card-bg)] text-gray-300']" @click="editTab = 'history'">
+                    History
+                </button>
             </div>
 
             <div v-if="editTab === 'details'" class="space-y-3">
@@ -520,6 +523,31 @@ const handleDrop = (status) => {
                         Save changes
                     </button>
                 </div>
+            </div>
+
+            <div v-else-if="editTab === 'history'" class="space-y-3">
+                <div v-if="activeBoard.history?.length" class="divide-y divide-[var(--separator)] border border-[var(--separator)] rounded-lg overflow-hidden">
+                    <div v-for="(item, index) in activeBoard.history" :key="item.id || index" class="p-3 bg-[var(--body-bg)] text-sm text-gray-200">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="space-y-1">
+                                <div class="font-semibold text-white capitalize">{{ item.event.replace('_', ' ') }}</div>
+                                <div class="text-xs text-gray-400">
+                                    <span v-if="item.payload?.from !== undefined">From: {{ item.payload.from }}</span>
+                                    <span v-if="item.payload?.to !== undefined" class="ml-2">To: {{ item.payload.to }}</span>
+                                    <span v-if="item.payload?.user_ids">Assignees: {{ item.payload.user_ids.join(', ') }}</span>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-400 text-right">
+                                <div>{{ new Date(item.created_at).toLocaleString() }}</div>
+                                <div v-if="item.user" class="flex items-center gap-1 justify-end mt-1">
+                                    <img v-if="item.user.gravatar" :src="`https://gravatar.com/avatar/${item.user.gravatar}?s=32&d=identicon`" class="size-4 rounded-full" />
+                                    <span>{{ item.user.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p v-else class="text-sm text-gray-400">No history yet.</p>
             </div>
 
             <div v-else class="space-y-3">

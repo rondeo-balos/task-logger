@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Board;
 use App\Models\User;
+use App\Models\BoardHistory;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\NotesController;
 use Illuminate\Http\Request;
@@ -25,6 +26,9 @@ class BoardController extends Controller {
 
         $boards = Board::with([
             'users:id,name,email',
+            'history' => function ($query) {
+                $query->with('user:id,name,email')->limit(50);
+            },
             'tasks' => function ($query) use ($canViewOthers, $user) {
                 if (! $canViewOthers) {
                     $query->where('user_id', $user->id);
@@ -68,6 +72,20 @@ class BoardController extends Controller {
                 ])->values(),
                 'tasks' => $tasks,
                 'total_logged' => $board->tasks->sum(fn ($task) => ($task->end - $task->start)),
+                'history' => $board->history->map(function ($entry) {
+                    return [
+                        'id' => $entry->id,
+                        'event' => $entry->event,
+                        'payload' => $entry->payload,
+                        'created_at' => $entry->created_at,
+                        'user' => $entry->user ? [
+                            'id' => $entry->user->id,
+                            'name' => $entry->user->name,
+                            'email' => $entry->user->email,
+                            'gravatar' => md5(strtolower(trim($entry->user->email ?? ''))),
+                        ] : null,
+                    ];
+                }),
             ];
         })
         ->values();
@@ -97,6 +115,7 @@ class BoardController extends Controller {
             'status' => session('status'),
             'notes' => $notes,
             'tags' => $tags,
+            'history' => $notes, // placeholder to keep prop structure, replace with real history when available
         ]);
     }
 
@@ -127,6 +146,17 @@ class BoardController extends Controller {
         ]);
 
         $board->users()->sync($validated['assigned_users'] ?? []);
+
+        BoardHistory::create([
+            'board_id' => $board->id,
+            'user_id' => Auth::id(),
+            'event' => 'created',
+            'payload' => [
+                'title' => $board->title,
+                'status' => $board->status,
+                'due_date' => $board->due_date,
+            ],
+        ]);
 
         return Redirect::back()->with('status', [
             'code' => 201,
@@ -166,6 +196,57 @@ class BoardController extends Controller {
             $board->users()->sync($validated['assigned_users'] ?? []);
         }
 
+        $changes = [];
+        $original = $board->getOriginal();
+        if (array_key_exists('status', $validated) && $validated['status'] !== $original['status']) {
+            $changes[] = [
+                'event' => 'status_changed',
+                'payload' => [
+                    'from' => $original['status'],
+                    'to' => $validated['status'],
+                ],
+            ];
+        }
+        if (array_key_exists('due_date', $validated)) {
+            $from = $original['due_date'] ? \Carbon\Carbon::parse($original['due_date'])->toDateString() : null;
+            $to = $validated['due_date'] ?? null;
+            if ($from !== $to) {
+                $changes[] = [
+                    'event' => 'due_date_changed',
+                    'payload' => [
+                        'from' => $from,
+                        'to' => $to,
+                    ],
+                ];
+            }
+        }
+        if (array_key_exists('title', $validated) && $validated['title'] !== $original['title']) {
+            $changes[] = [
+                'event' => 'title_changed',
+                'payload' => [
+                    'from' => $original['title'],
+                    'to' => $validated['title'],
+                ],
+            ];
+        }
+        if (array_key_exists('assigned_users', $validated)) {
+            $changes[] = [
+                'event' => 'assignees_updated',
+                'payload' => [
+                    'user_ids' => $validated['assigned_users'] ?? [],
+                ],
+            ];
+        }
+
+        foreach ($changes as $change) {
+            BoardHistory::create([
+                'board_id' => $board->id,
+                'user_id' => Auth::id(),
+                'event' => $change['event'],
+                'payload' => $change['payload'] ?? [],
+            ]);
+        }
+
         return Redirect::back()->with('status', [
             'code' => 200,
             'status' => 'Board updated.',
@@ -175,6 +256,12 @@ class BoardController extends Controller {
     public function destroy(Board $board) {
         $this->authorizeBoard($board);
         Storage::disk('public')->delete($board->attachments ?? []);
+        BoardHistory::create([
+            'board_id' => $board->id,
+            'user_id' => Auth::id(),
+            'event' => 'deleted',
+            'payload' => [],
+        ]);
         $board->delete();
 
         return Redirect::back()->with('status', [

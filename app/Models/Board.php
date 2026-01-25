@@ -51,4 +51,8 @@ class Board extends Model {
     public function workplace() {
         return $this->belongsTo(Workplace::class);
     }
+
+    public function history() {
+        return $this->hasMany(BoardHistory::class)->latest();
+    }
 }
