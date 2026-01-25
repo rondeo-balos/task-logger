@@ -83,61 +83,58 @@ const toggleViewOther = (user, enabled) => {
 </script>
 
 <template>
-    <section class="space-y-16">
-        <div>
-            <header>
-                <h2 class="text-lg font-medium text-gray-900">
-                    Give Access to workplace
-                </h2>
+    <section class="space-y-10 text-white">
+        <div class="space-y-4">
+            <header class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold">Give Access to workplace</h2>
+                    <p class="text-xs text-gray-400">Invite teammates and choose their permissions.</p>
+                </div>
             </header>
 
-            <form @submit.prevent="handleSubmit" class="w-full mt-6 space-y-6">
+            <form @submit.prevent="handleSubmit" class="w-full space-y-4">
                 <div>
-                    <InputLabel for="email" value="Email" />
-                    <TextInput v-model="giveAccessForm.email" id="email" type="text" class="mt-1 block w-full"/>
+                    <InputLabel for="email" value="Email" class="text-gray-300" />
+                    <TextInput v-model="giveAccessForm.email" id="email" type="text" class="mt-1 block w-full bg-[var(--body-bg)] text-white" />
                     <InputError class="mt-2" :message="''" />
                 </div>
-                <div>
-                    <div class="flex flex-row gap-8 w-full mt-2">
-                        <label class="flex items-center">
-                            <Checkbox v-model:checked="read" />
-                            <span class="ms-2 text-sm text-gray-600 cursor-pointer">Read</span>
-                        </label>
-                        <label class="flex items-center">
-                            <Checkbox v-model:checked="write" />
-                            <span class="ms-2 text-sm text-gray-600 cursor-pointer">Write</span>
-                        </label>
-                        <label class="flex items-center">
-                            <Checkbox v-model:checked="viewOther" />
-                            <span class="ms-2 text-sm text-gray-600 cursor-pointer">View others' tasks</span>
-                        </label>
-                    </div>
-                    <InputError class="mt-2" :message="''" />
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label class="flex items-center gap-2 rounded-lg border border-[var(--separator)] bg-[var(--body-bg)] px-3 py-2 text-sm">
+                        <Checkbox v-model:checked="read" />
+                        <span>Read</span>
+                    </label>
+                    <label class="flex items-center gap-2 rounded-lg border border-[var(--separator)] bg-[var(--body-bg)] px-3 py-2 text-sm">
+                        <Checkbox v-model:checked="write" />
+                        <span>Write</span>
+                    </label>
+                    <label class="flex items-center gap-2 rounded-lg border border-[var(--separator)] bg-[var(--body-bg)] px-3 py-2 text-sm">
+                        <Checkbox v-model:checked="viewOther" />
+                        <span>View others' tasks</span>
+                    </label>
                 </div>
 
-                <PrimaryButton class="w-full justify-center py-3" :class="{ 'opacity-25': giveAccessForm.processing }" :disabled="giveAccessForm.processing">Submit</PrimaryButton>
+                <PrimaryButton class="w-full justify-center py-3 !bg-blue-700 hover:!bg-blue-600" :class="{ 'opacity-25': giveAccessForm.processing }" :disabled="giveAccessForm.processing">Submit</PrimaryButton>
             </form>
         </div>
 
-        <div>
+        <div class="space-y-4">
             <header>
-                <h2 class="text-lg font-medium text-gray-900 mb-8">
-                    Manage Access
-                </h2>
+                <h2 class="text-lg font-semibold mb-1">Manage Access</h2>
+                <p class="text-xs text-gray-400">Review and adjust existing permissions.</p>
             </header>
 
-            <div class="shadow-md rounded-lg overflow-hidden">
-                <table class="min-w-full divide-y table-fixed divide-gray-700 text-gray-400">
-                    <thead class="bg-gray-700">
+            <div class="shadow-md rounded-2xl overflow-hidden border border-[var(--separator)] bg-[var(--card-bg)]">
+                <table class="min-w-full divide-y table-fixed divide-[var(--separator)] text-gray-200">
+                    <thead class="bg-[var(--body-bg)] text-gray-300">
                         <tr>
-                            <th class="p-4">Email</th>
-                            <th class="p-4">Access</th>
-                            <th class="p-4">View others' tasks</th>
-                            <th class="p-4">Action</th>
+                            <th class="p-4 text-left">Email</th>
+                            <th class="p-4 text-left">Access</th>
+                            <th class="p-4 text-left">View others' tasks</th>
+                            <th class="p-4 text-left">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y bg-gray-800 divide-gray-700">
-                        <tr v-for="user in users" :key="user.id" class="hover:bg-gray-700">
+                    <tbody class="divide-y divide-[var(--separator)]">
+                        <tr v-for="user in users" :key="user.id" class="hover:bg-[var(--body-bg)]">
                             <td class="p-4">{{ user.email }}</td>
                             <td class="p-4 space-x-2">
                                 <span v-if="accessForUser(user).read" class="px-2 py-1 text-xs rounded bg-green-900 text-green-200">Read</span>

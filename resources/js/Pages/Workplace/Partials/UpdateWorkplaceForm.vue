@@ -19,20 +19,28 @@ const handleSubmit = () => {
 </script>
 
 <template>
-    <section>
-        <header>
-            <h2 class="text-lg font-medium text-gray-900">
-                Workspace Information
-            </h2>
+    <section class="space-y-4">
+        <header class="flex items-center gap-2">
+            <div class="size-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">
+                {{ (updateWorkplaceForm.name || 'W')[0] }}
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-white">
+                    Workspace Information
+                </h2>
+                <p class="text-xs text-gray-400">Update the name shown to your team.</p>
+            </div>
         </header>
 
-            <form class="w-full mt-6 space-y-6" @submit.prevent="handleSubmit">
-                <div>
-                    <InputLabel for="name" value="Name" />
-                    <TextInput v-model="updateWorkplaceForm.name"  id="name" type="text" class="mt-1 block w-full"/>
-                    <InputError class="mt-2" :message="updateWorkplaceForm.errors.name" />
-                </div>
-                <PrimaryButton type="submit" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1" :class="{ 'opacity-25': updateWorkplaceForm.processing }" :disabled="updateWorkplaceForm.processing">Save</PrimaryButton>
-            </form>
-        </section>
-    </template>
+        <form class="w-full space-y-4" @submit.prevent="handleSubmit">
+            <div>
+                <InputLabel for="name" value="Name" class="text-gray-300" />
+                <TextInput v-model="updateWorkplaceForm.name" id="name" type="text" class="mt-2 block w-full bg-[var(--body-bg)] text-white" />
+                <InputError class="mt-2" :message="updateWorkplaceForm.errors.name" />
+            </div>
+            <div class="flex items-center justify-end">
+                <PrimaryButton type="submit" class="p-2 px-4 !bg-blue-700 hover:!bg-blue-600 flex flex-row gap-1" :class="{ 'opacity-25': updateWorkplaceForm.processing }" :disabled="updateWorkplaceForm.processing">Save</PrimaryButton>
+            </div>
+        </form>
+    </section>
+</template>
