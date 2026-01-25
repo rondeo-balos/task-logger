@@ -57,7 +57,7 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
     <div class="min-h-screen bg-[#0a0f1d] text-white">
         <!-- Hero -->
         <header class="relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#5b21b6] via-[#4338ca] to-[#2563eb]"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-[#057904] via-[#008400] to-[#0f3d1c]"></div>
             <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,#ffffff44_0%,transparent_35%)]"></div>
             <div class="relative mx-auto max-w-6xl px-4 py-6 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -83,7 +83,7 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
 
             <div class="relative mx-auto max-w-6xl px-4 pb-14 pt-6 text-center">
                 <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-sm font-semibold">
-                    <SparklesIcon class="size-4" /> Powerful tracking meets seamless design
+                    Powerful tracking meets seamless design
                 </p>
                 <h1 class="mt-4 text-4xl md:text-5xl font-black leading-tight">Board-aware time tracking with rich context.</h1>
                 <p class="mt-3 text-lg text-white/80 max-w-3xl mx-auto">
@@ -144,28 +144,28 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
         <section id="solutions" class="bg-white text-[#0f172a] py-14">
             <div class="mx-auto max-w-6xl px-4 grid lg:grid-cols-2 gap-10 items-center">
                 <div class="space-y-3">
-                    <p class="text-xs uppercase tracking-widest text-purple-600">About us</p>
+                    <p class="text-xs uppercase tracking-widest text-emerald-600">About us</p>
                     <h2 class="text-3xl font-bold">Where task logging gets easier for everyone.</h2>
                     <p class="text-gray-600">Task Logger unifies time tracking, boards, descriptions, and permissions. No more siloed timers - just clean, export-ready logs that respect your workflows.</p>
                     <div class="grid grid-cols-3 gap-3 text-center">
-                        <div class="rounded-2xl bg-purple-50 p-3">
-                            <p class="text-xl font-bold text-purple-700">200k+</p>
+                        <div class="rounded-2xl bg-emerald-50 p-3">
+                            <p class="text-xl font-bold text-emerald-700">200k+</p>
                             <p class="text-xs text-gray-500">Workspaces</p>
                         </div>
-                        <div class="rounded-2xl bg-purple-50 p-3">
-                            <p class="text-xl font-bold text-purple-700">205k</p>
+                        <div class="rounded-2xl bg-emerald-50 p-3">
+                            <p class="text-xl font-bold text-emerald-700">205k</p>
                             <p class="text-xs text-gray-500">Daily tasks logged</p>
                         </div>
-                        <div class="rounded-2xl bg-purple-50 p-3">
-                            <p class="text-xl font-bold text-purple-700">2.5h</p>
+                        <div class="rounded-2xl bg-emerald-50 p-3">
+                            <p class="text-xl font-bold text-emerald-700">2.5h</p>
                             <p class="text-xs text-gray-500">Avg. time saved/week</p>
                         </div>
                     </div>
-                    <Link :href="route('register')" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-purple-600 text-white font-semibold shadow hover:bg-purple-500">
+                    <Link :href="route('register')" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-600 text-white font-semibold shadow hover:bg-emerald-500">
                         Discover more <ArrowRightIcon class="size-4" />
                     </Link>
                 </div>
-                <div class="rounded-3xl border border-gray-100 shadow-xl p-6 bg-gradient-to-br from-white to-purple-50">
+                <div class="rounded-3xl border border-gray-100 shadow-xl p-6 bg-gradient-to-br from-white to-emerald-50">
                     <div class="flex gap-3 items-start">
                         <div class="size-12 rounded-xl flex items-center justify-center font-bold">
                             <img src="/logo.svg" class="size-12" />
@@ -178,19 +178,19 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
                     <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
                         <div class="rounded-xl bg-white border border-gray-100 p-3">
                             <p class="text-gray-600">Pending</p>
-                            <p class="font-bold text-purple-700">3 cards</p>
+                            <p class="font-bold text-emerald-700">3 cards</p>
                         </div>
                         <div class="rounded-xl bg-white border border-gray-100 p-3">
                             <p class="text-gray-600">In Progress</p>
-                            <p class="font-bold text-purple-700">12h logged</p>
+                            <p class="font-bold text-emerald-700">12h logged</p>
                         </div>
                         <div class="rounded-xl bg-white border border-gray-100 p-3">
                             <p class="text-gray-600">To Review</p>
-                            <p class="font-bold text-purple-700">4 cards</p>
+                            <p class="font-bold text-emerald-700">4 cards</p>
                         </div>
                         <div class="rounded-xl bg-white border border-gray-100 p-3">
                             <p class="text-gray-600">Completed</p>
-                            <p class="font-bold text-purple-700">34 tasks</p>
+                            <p class="font-bold text-emerald-700">34 tasks</p>
                         </div>
                     </div>
                 </div>
@@ -201,12 +201,12 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
         <section class="bg-[#f8fafc] text-[#0f172a]" id="features">
             <div class="mx-auto max-w-6xl px-4 py-14 space-y-8">
                 <div class="text-center space-y-2">
-                    <p class="text-xs uppercase tracking-widest text-purple-600">What we offer</p>
+                    <p class="text-xs uppercase tracking-widest text-emerald-600">What we offer</p>
                     <h2 class="text-3xl font-bold">Our solutions, built-in.</h2>
                 </div>
                 <div class="grid md:grid-cols-3 gap-4">
                     <div v-for="item in solutions" :key="item.title" class="rounded-2xl bg-white shadow p-5 border border-gray-100">
-                        <div class="size-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                        <div class="size-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
                             <SparklesIcon class="size-5" />
                         </div>
                         <h3 class="mt-3 text-lg font-semibold">{{ item.title }}</h3>
@@ -220,12 +220,12 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
         <section class="bg-[#0b0f1d] text-white">
             <div class="mx-auto max-w-6xl px-4 py-14">
                 <div class="text-center space-y-2 mb-8">
-                    <p class="text-xs uppercase tracking-widest text-purple-300">How it works</p>
+                    <p class="text-xs uppercase tracking-widest text-emerald-300">How it works</p>
                     <h2 class="text-3xl font-bold">Marketing made simple - now for tasks.</h2>
                 </div>
                 <div class="grid md:grid-cols-3 gap-4">
                     <div v-for="(step, idx) in steps" :key="step.title" class="rounded-2xl bg-gradient-to-br from-[#111827] to-[#0b1020] border border-white/10 p-5">
-                        <div class="text-sm text-purple-300 mb-2">Step {{ idx + 1 }}</div>
+                        <div class="text-sm text-emerald-300 mb-2">Step {{ idx + 1 }}</div>
                         <h3 class="text-lg font-semibold">{{ step.title }}</h3>
                         <p class="text-sm text-gray-300 mt-2">{{ step.body }}</p>
                     </div>
@@ -237,12 +237,12 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
         <section id="pricing" class="bg-white text-[#0f172a]">
             <div class="mx-auto max-w-6xl px-4 py-14 space-y-8">
                 <div class="text-center space-y-2">
-                    <p class="text-xs uppercase tracking-widest text-purple-600">Pricing</p>
+                    <p class="text-xs uppercase tracking-widest text-emerald-600">Pricing</p>
                     <h2 class="text-3xl font-bold">Pricing that fits your needs</h2>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-semibold">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
                         <span>{{ pricingLabel }}</span>
                         <label class="inline-flex items-center gap-1 text-gray-500 text-xs">
-                            <input type="checkbox" v-model="pricingMode" true-value="yearly" false-value="monthly" class="accent-purple-600" />
+                            <input type="checkbox" v-model="pricingMode" true-value="yearly" false-value="monthly" class="accent-emerald-600" />
                             <span>Yearly discount</span>
                         </label>
                     </div>
@@ -251,7 +251,7 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
                     <div v-for="tier in pricingTiers" :key="tier.name" class="rounded-2xl border border-gray-100 bg-white shadow-sm p-6 hover:-translate-y-1 hover:shadow-lg transition">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-semibold">{{ tier.name }}</h3>
-                            <span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-700">Most popular</span>
+                            <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">Most popular</span>
                         </div>
                         <div class="mt-3 flex items-baseline gap-1">
                             <span class="text-3xl font-bold">${{ tier.price }}</span>
@@ -262,7 +262,7 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
                                 <CheckIcon class="size-4 text-emerald-500 mt-1" /> <span>{{ item }}</span>
                             </li>
                         </ul>
-                        <Link :href="route('register')" class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-purple-600 text-white font-semibold py-2 hover:bg-purple-500">
+                        <Link :href="route('register')" class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-emerald-600 text-white font-semibold py-2 hover:bg-emerald-500">
                             Start free
                         </Link>
                     </div>
@@ -274,7 +274,7 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
         <section id="testimonials" class="bg-[#0b1120] text-white">
             <div class="mx-auto max-w-6xl px-4 py-14 space-y-6">
                 <div class="text-center space-y-2">
-                    <p class="text-xs uppercase tracking-widest text-purple-300">Testimonials</p>
+                    <p class="text-xs uppercase tracking-widest text-emerald-300">Testimonials</p>
                     <h2 class="text-3xl font-bold">Success stories from our users</h2>
                 </div>
                 <div class="grid md:grid-cols-3 gap-4">
@@ -297,7 +297,7 @@ const pricingLabel = computed(() => pricingMode.value === 'yearly' ? 'Yearly (sa
 
         <!-- CTA -->
         <section class="relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#5b21b6] via-[#4338ca] to-[#2563eb]"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-[#057904] via-[#008400] to-[#0f3d1c]"></div>
             <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_left,#ffffff44_0%,transparent_35%)]"></div>
             <div class="relative mx-auto max-w-6xl px-4 py-12 text-center space-y-4">
                 <p class="text-sm uppercase tracking-widest text-white/80">Ready to get started?</p>
