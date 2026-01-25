@@ -5,6 +5,8 @@ import MasterSidebar from '../Partials/MasterSidebar.vue';
 import Offcanvas from '@/Components/Offcanvas.vue';
 import NotificationStack from '../Partials/NotificationStack.vue';
 import RichtextEditor from '../Partials/RichtextEditor.vue';
+import VueTailwindDatepicker from 'vue-tailwind-datepicker';
+import Dropdown from '@/Components/Dropdown.vue';
 import { FormatElapsedTime } from '../Partials/Composables/Time';
 import { PlusIcon, PlayIcon, PencilIcon, TrashIcon, PaperClipIcon, TagIcon } from '@heroicons/vue/24/solid';
 import Collections from '../Partials/Collections.vue';
@@ -277,17 +279,39 @@ const formatTaskRange = (task) => {
                 <RichtextEditor v-model="createForm.description[0]" />
             </div>
             <div class="flex flex-wrap gap-3">
-                <div class="flex-1 min-w-[160px]">
+                <div class="flex-1 min-w-[180px] space-y-1">
                     <label class="text-sm text-gray-300">Status</label>
-                    <select v-model="createForm.status" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white">
-                        <option v-for="status in statuses" :key="status" :value="status" class="bg-[var(--card-bg)] text-white">
-                            {{ statusLabel(status) }}
-                        </option>
-                    </select>
+                    <Dropdown align="left" width="48">
+                        <template #trigger>
+                            <button type="button" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-[var(--separator)] bg-[var(--body-bg)] text-white hover:border-blue-500">
+                                <span class="text-sm capitalize">{{ statusLabel(createForm.status) }}</span>
+                                <TagIcon class="size-4 opacity-60" />
+                            </button>
+                        </template>
+                        <template #content>
+                            <div class="bg-[var(--card-bg)] text-white rounded-md shadow-lg border border-[var(--separator)]">
+                                <button
+                                    v-for="status in statuses"
+                                    :key="status"
+                                    type="button"
+                                    class="w-full text-left px-3 py-2 text-sm hover:bg-blue-900/40"
+                                    @click="createForm.status = status"
+                                >
+                                    {{ statusLabel(status) }}
+                                </button>
+                            </div>
+                        </template>
+                    </Dropdown>
                 </div>
-                <div class="flex-1 min-w-[160px]">
+                <div class="flex-1 min-w-[180px] space-y-1">
                     <label class="text-sm text-gray-300">Due date</label>
-                    <input v-model="createForm.due_date" type="date" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white" />
+                    <VueTailwindDatepicker
+                        as-single
+                        v-model:model-value="createForm.due_date"
+                        :formatter="{ date: 'YYYY-MM-DD', month: 'MMM' }"
+                        input-classes="w-full bg-[var(--body-bg)] border border-[var(--separator)] rounded px-3 py-2 text-white placeholder:text-gray-500"
+                        placeholder="Pick a date"
+                    />
                 </div>
             </div>
             <div>
@@ -352,24 +376,46 @@ const formatTaskRange = (task) => {
             </div>
 
             <div v-if="editTab === 'details'" class="space-y-3">
-                <div class="flex flex-wrap gap-3">
-                    <div class="flex-1 min-w-[160px]">
-                        <label class="text-sm text-gray-300">Status</label>
-                        <select v-model="editForm.status" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white">
-                            <option v-for="status in statuses" :key="status" :value="status" class="bg-[var(--card-bg)] text-white">
-                                {{ statusLabel(status) }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="flex-1 min-w-[160px]">
-                        <label class="text-sm text-gray-300">Due date</label>
-                        <input v-model="editForm.due_date" type="date" class="w-full bg-transparent border border-[var(--separator)] rounded px-2 py-2 text-white" />
-                    </div>
+            <div class="flex flex-wrap gap-3">
+                <div class="flex-1 min-w-[180px] space-y-1">
+                    <label class="text-sm text-gray-300">Status</label>
+                    <Dropdown align="left" width="48">
+                        <template #trigger>
+                            <button type="button" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-[var(--separator)] bg-[var(--body-bg)] text-white hover:border-blue-500">
+                                <span class="text-sm capitalize">{{ statusLabel(editForm.status) }}</span>
+                                <TagIcon class="size-4 opacity-60" />
+                            </button>
+                        </template>
+                        <template #content>
+                            <div class="bg-[var(--card-bg)] text-white rounded-md shadow-lg border border-[var(--separator)]">
+                                <button
+                                    v-for="status in statuses"
+                                    :key="status"
+                                    type="button"
+                                    class="w-full text-left px-3 py-2 text-sm hover:bg-blue-900/40"
+                                    @click="editForm.status = status"
+                                >
+                                    {{ statusLabel(status) }}
+                                </button>
+                            </div>
+                        </template>
+                    </Dropdown>
                 </div>
-                <div>
-                    <div class="flex items-center justify-between text-sm text-gray-300">
-                        <span>Assign users</span>
-                        <span class="text-xs text-gray-400">{{ editForm.assigned_users.length }} selected</span>
+                <div class="flex-1 min-w-[180px] space-y-1">
+                    <label class="text-sm text-gray-300">Due date</label>
+                    <VueTailwindDatepicker
+                        as-single
+                        v-model:model-value="editForm.due_date"
+                        :formatter="{ date: 'YYYY-MM-DD', month: 'MMM' }"
+                        input-classes="w-full bg-[var(--body-bg)] border border-[var(--separator)] rounded px-3 py-2 text-white placeholder:text-gray-500"
+                        placeholder="Pick a date"
+                    />
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between text-sm text-gray-300">
+                    <span>Assign users</span>
+                    <span class="text-xs text-gray-400">{{ editForm.assigned_users.length }} selected</span>
                     </div>
                     <div class="mt-2 grid grid-cols-2 gap-2">
                         <button
