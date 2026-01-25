@@ -10,12 +10,12 @@ const showCreation = ref(false);
 </script>
 
 <template>
-    <Head title="Workplaces" />
+    <Head title="Workspaces" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-white">
-                Workplaces
+                Workspaces
             </h2>
         </template>
 
