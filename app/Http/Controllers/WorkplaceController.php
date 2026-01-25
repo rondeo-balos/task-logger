@@ -79,6 +79,9 @@ class WorkplaceController extends Controller {
      */
     public function edit( Request $request, $id ) {
         $workplace = Workplace::find($id);
+        if (!$workplace || $workplace->user_id !== Auth::id()) {
+            abort(403, 'Only the owner can edit settings.');
+        }
         $users = User::with('permissions')->whereHas( 'permissions', function($query) use ($id) {
             $query->where( 'name', 'LIKE', '% ' . $id );
         })->get();
