@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Board;
 use App\Models\User;
+use App\Http\Controllers\TagsController;
+use App\Http\Controllers\NotesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -76,12 +78,17 @@ class BoardController extends Controller {
             $query->where('name', 'LIKE', '% ' . $workplaceId);
         })->orWhere('id', $workplace?->user_id)->get(['id', 'name', 'email'])->unique('id')->values();
 
+        $tags = TagsController::list();
+        $notes = NotesController::list();
+
         return Inertia::render('Boards/Index', [
             'boards' => $boards,
             'users' => $workplaceUsers,
             'statuses' => self::STATUSES,
             'workplaces' => $workplaces->merge($sharedWorkplaces),
             'status' => session('status'),
+            'notes' => $notes,
+            'tags' => $tags,
         ]);
     }
 

@@ -42,7 +42,7 @@ const currentWorkplace = ref(usePage().props.current_workplace);
                     </Dropdown>
                 </li>
                 <li>
-                    <a :href="route('home')" class="p-4 py-2 bg-blue-700 rounded-lg block">
+                    <a :href="route('home')" :class="['p-4 py-2 rounded-lg block', route().current('home') ? 'bg-blue-700' : 'hover:bg-gray-900']">
                         Time Tracker
                     </a>
                 </li>
@@ -57,12 +57,12 @@ const currentWorkplace = ref(usePage().props.current_workplace);
                     </a>
                 </li> -->
                 <li>
-                    <a href="#" class="p-4 py-2 rounded-lg block" @click.prevent="showTagsCanvas = true">
+                    <a href="#" class="p-4 py-2 rounded-lg block hover:bg-gray-900" @click.prevent="showTagsCanvas = true">
                         Tags
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="p-4 py-2 bg-transparent rounded-lg block" @click.prevent="showCollectionCanvas = true">
+                    <a href="#" class="p-4 py-2 bg-transparent rounded-lg block hover:bg-gray-900" @click.prevent="showCollectionCanvas = true">
                         Notes
                     </a>
                 </li>
