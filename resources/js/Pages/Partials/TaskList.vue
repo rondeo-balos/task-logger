@@ -30,40 +30,43 @@ const getYearForWeek = (weekNum) => {
     return currentYear;
 };
 
-// Computed property to sort days within each week by date (descending)
-const sortedTasks = computed(() => {
-    // Sort weeks chronologically by their actual start date (ascending, because flex-col-reverse will reverse it)
+// Computed property to sort weeks and days; caches week ranges to avoid repeated date math
+const sortedWeeks = computed(() => {
     return Object.entries(props.tasks || {})
-        .sort(([weekA], [weekB]) => {
-            const yearA = getYearForWeek(parseInt(weekA));
-            const yearB = getYearForWeek(parseInt(weekB));
-            
-            // Get actual start dates for accurate comparison
-            const dateA = WeekRange(yearA, parseInt(weekA)).start;
-            const dateB = WeekRange(yearB, parseInt(weekB)).start;
-            
-            // Sort by actual date (ascending - oldest first)
-            return dateA - dateB;
-        })
         .map(([weekNum, weekData]) => {
-            // Convert weekData to array of [dateKey, dayData] pairs and sort by date descending
-            const sortedDays = Object.entries(weekData)
-                .sort(([dateA], [dateB]) => dateB.localeCompare(dateA)) // Sort dates descending
+            const weekNumber = parseInt(weekNum, 10);
+            const year = getYearForWeek(weekNumber);
+            const range = WeekRange(year, weekNumber);
+
+            const sortedDays = Object.entries(weekData || {})
+                .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
                 .reduce((acc, [dateKey, dayData]) => {
                     acc[dateKey] = dayData;
                     return acc;
                 }, {});
-            
-            return [weekNum, sortedDays];
-        });
+
+            return { week: weekNum, range, days: sortedDays };
+        })
+        .sort((a, b) => a.range.start - b.range.start);
+});
+
+const taskLookup = computed(() => {
+    const lookup = new Map();
+    for (const { days } of sortedWeeks.value) {
+        for (const dayData of Object.values(days)) {
+            for (const task of toArray(dayData)) {
+                if (task?.id != null) lookup.set(task.id, task);
+            }
+        }
+    }
+    return lookup;
 });
 
 watch(
     () => props.tasks,
     () => {
         if (ocOpen.value && activeTaskId.value) syncActiveFromProps();
-    },
-    { deep: true }
+    }
 );
 
 const emit = defineEmits([ 'resumeTask' ]);
@@ -76,8 +79,18 @@ const ocOpen = ref(false);
 const activeTaskId = ref(null);
 const activeIndex = ref(null);
 
+function sanitizeDescriptionValue(value) {
+    if (typeof value !== 'string') return '';
+    const withoutScripts = value.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    return withoutScripts.replace(/\son\w+=(?:"[^"]*"|'[^']*')/gi, '');
+}
+
 // local copy of descriptions while editing
 const form = useForm({ description: [] });
+form.transform((data) => ({
+    ...data,
+    description: (data.description || []).map(sanitizeDescriptionValue),
+}));
 
 function closeOffcanvas() {
     ocOpen.value = false;
@@ -119,16 +132,7 @@ function toArray(v) {
 }
 
 function findTaskInProps(id) {
-    // sortedTasks is now an array of [weekNum, weekData] tuples
-    for (const [weekNum, weekData] of sortedTasks.value) {
-        const days = toArray(weekData);
-        for (const day of days) {
-            const tasksArr = toArray(day);
-            const t = tasksArr.find(x => x && x.id === id);
-            if (t) return t;
-        }
-    }
-    return null;
+    return taskLookup.value.get(id) ?? null;
 }
 
 function hydrateFromProps(id) {
@@ -160,15 +164,15 @@ function syncActiveFromProps() {
 
     <div class="flex flex-col-reverse text-white">
 
-        <div v-for="[week, weekData] in sortedTasks" :key="week">
+        <div v-for="weekEntry in sortedWeeks" :key="weekEntry.week">
 
             <div class="p-2 py-1 flex flex-row items-center justify-between mt-8">
-                <b>{{ WeekRange(getYearForWeek(week), week).start.toDateString() }} - {{ WeekRange(getYearForWeek(week), week).end.toDateString() }}</b>
-                <span>Weekly Total: <b>{{ FormatElapsedTime(total.weekly[week]) }}</b></span>
+                <b>{{ weekEntry.range.start.toDateString() }} - {{ weekEntry.range.end.toDateString() }}</b>
+                <span>Weekly Total: <b>{{ FormatElapsedTime(total.weekly[weekEntry.week]) }}</b></span>
             </div>
 
             <div class="flex flex-col">
-                <div v-for="(dayData, dateKey) in weekData" class="my-3 border rounded-lg divide-y border-[var(--separator)] divide-[var(--separator)] shadow-xl">
+                <div v-for="(dayData, dateKey) in weekEntry.days" :key="dateKey" class="my-3 border rounded-lg divide-y border-[var(--separator)] divide-[var(--separator)] shadow-xl">
                     <div class="p-2 bg-[var(--alt-bg)] flex flex-row items-center justify-between rounded-t-lg">
                         <b>{{ GetDayName(dateKey) }}</b>
                         <span>Total: <b>{{ FormatElapsedTime(total.daily[dateKey]) }}</b></span>
