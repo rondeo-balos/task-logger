@@ -59,6 +59,9 @@ const submit = () => {
             </div>
 
             <PrimaryButton class="w-full justify-center py-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">Sign in</PrimaryButton>
+            <Link :href="route('register')" class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Register
+            </Link>
         </form>
     </GuestLayout>
 </template>

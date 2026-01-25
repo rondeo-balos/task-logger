@@ -42,13 +42,13 @@ const submit = () => {
                 <input type="password" v-model="form.password_confirmation" class="p-3 px-5 bg-transparent border-0 ring-0 focus:ring-0 w-full" placeholder="Confirm Password" required />
             </div>
 
-            <div class="flex flex-row justify-between w-full">
+            <PrimaryButton class="w-full justify-center py-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">Sign up</PrimaryButton>
+
+            <div class="flex flex-row justify-center w-full">
                 <Link :href="route('login')" class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     Already registered?
                 </Link>
             </div>
-
-            <PrimaryButton class="w-full justify-center py-3" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">Sign up</PrimaryButton>
         </form>
     </GuestLayout>
 </template>
