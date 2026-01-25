@@ -35,7 +35,23 @@ class TasksController extends Controller {
 
         $request->session()->put('tasks.filters', $filters);
 
-        $data = \Auth::user()->workplace->tasks()->with('user')->filter($filters)->get();
+        $user = \Auth::user();
+        $workplace = $user->workplace;
+        $workplaceId = $workplace?->id;
+
+        $canViewOthers = false;
+        if ($workplaceId) {
+            $isOwner = $workplace?->user_id === $user->id;
+            $userPermissions = $user->getAllPermissions()->pluck('name');
+            $canViewOthers = $isOwner || $userPermissions->contains("view-other $workplaceId");
+        }
+
+        $query = $workplace->tasks()->with('user')->filter($filters);
+        if (!$canViewOthers) {
+            $query->where('user_id', \Auth::id());
+        }
+
+        $data = $query->get();
         
         $dailyTotals = [];
         $weeklyTotals = [];

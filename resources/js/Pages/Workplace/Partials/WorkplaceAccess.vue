@@ -11,6 +11,7 @@ const props = defineProps([ 'workplace_id', 'users' ]);
 
 const read = ref(false);
 const write = ref(false);
+const viewOther = ref(false);
 
 const giveAccessForm = useForm({
     permission: [],
@@ -21,17 +22,27 @@ const revokeAccessForm = useForm({
     email: ''
 });
 
+const toggleViewOtherForm = useForm({
+    email: '',
+    permission: ['view-other']
+});
+
 const handleSubmit = () => {
     giveAccessForm.permission = [];
     if( read.value )
         giveAccessForm.permission.push( 'read' );
     if( write.value )
         giveAccessForm.permission.push( 'write' );
+    if( viewOther.value )
+        giveAccessForm.permission.push( 'view-other' );
 
     giveAccessForm.post( route('workplace.give', [props.workplace_id]), {
         preserveScroll: true,
         onFinish: () => {
             giveAccessForm.permission = [];
+            read.value = false;
+            write.value = false;
+            viewOther.value = false;
         }
     });
 };
@@ -40,16 +51,34 @@ const accessForUser = (user) => {
     const names = (user.permissions || []).map(p => p.name ?? p);
     const read = names.includes(`read ${props.workplace_id}`);
     const write = names.includes(`write ${props.workplace_id}`);
-    return { read, write };
+    const viewOther = names.includes(`view-other ${props.workplace_id}`);
+    return { read, write, viewOther };
 };
 
 const revokeAccess = (user) => {
     if (!confirm(`Revoke all access for ${user.email}?`)) return;
     revokeAccessForm.email = user.email;
+    revokeAccessForm.permission = ['read', 'write', 'view-other'];
     revokeAccessForm.post(route('workplace.revoke', [props.workplace_id]), {
         preserveScroll: true,
-        onFinish: () => revokeAccessForm.reset('email')
+        onFinish: () => revokeAccessForm.reset()
     });
+};
+
+const toggleViewOther = (user, enabled) => {
+    toggleViewOtherForm.email = user.email;
+    toggleViewOtherForm.permission = ['view-other'];
+    if (enabled) {
+        toggleViewOtherForm.post(route('workplace.give', [props.workplace_id]), {
+            preserveScroll: true,
+            onFinish: () => toggleViewOtherForm.reset()
+        });
+    } else {
+        toggleViewOtherForm.post(route('workplace.revoke', [props.workplace_id]), {
+            preserveScroll: true,
+            onFinish: () => toggleViewOtherForm.reset()
+        });
+    }
 };
 </script>
 
@@ -58,7 +87,7 @@ const revokeAccess = (user) => {
         <div>
             <header>
                 <h2 class="text-lg font-medium text-gray-900">
-                    Give Access to workspace
+                    Give Access to workplace
                 </h2>
             </header>
 
@@ -77,6 +106,10 @@ const revokeAccess = (user) => {
                         <label class="flex items-center">
                             <Checkbox v-model:checked="write" />
                             <span class="ms-2 text-sm text-gray-600 cursor-pointer">Write</span>
+                        </label>
+                        <label class="flex items-center">
+                            <Checkbox v-model:checked="viewOther" />
+                            <span class="ms-2 text-sm text-gray-600 cursor-pointer">View others' tasks</span>
                         </label>
                     </div>
                     <InputError class="mt-2" :message="''" />
@@ -99,6 +132,7 @@ const revokeAccess = (user) => {
                         <tr>
                             <th class="p-4">Email</th>
                             <th class="p-4">Access</th>
+                            <th class="p-4">View others' tasks</th>
                             <th class="p-4">Action</th>
                         </tr>
                     </thead>
@@ -108,7 +142,20 @@ const revokeAccess = (user) => {
                             <td class="p-4 space-x-2">
                                 <span v-if="accessForUser(user).read" class="px-2 py-1 text-xs rounded bg-green-900 text-green-200">Read</span>
                                 <span v-if="accessForUser(user).write" class="px-2 py-1 text-xs rounded bg-blue-900 text-blue-200">Write</span>
-                                <span v-if="!accessForUser(user).read && !accessForUser(user).write" class="text-xs text-gray-500">No access</span>
+                                <span v-if="accessForUser(user).viewOther" class="px-2 py-1 text-xs rounded bg-purple-900 text-purple-200">Others</span>
+                                <span v-if="!accessForUser(user).read && !accessForUser(user).write && !accessForUser(user).viewOther" class="text-xs text-gray-500">No access</span>
+                            </td>
+                            <td class="p-4">
+                                <label class="inline-flex items-center gap-2 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        class="rounded border-gray-500 text-blue-600 bg-gray-800"
+                                        :checked="accessForUser(user).viewOther"
+                                        :disabled="toggleViewOtherForm.processing"
+                                        @change="(e) => toggleViewOther(user, e.target.checked)"
+                                    />
+                                    <span>Allow</span>
+                                </label>
                             </td>
                             <td class="p-4">
                                 <button type="button" class="text-sm text-red-400 hover:text-red-200" :disabled="revokeAccessForm.processing" @click="revokeAccess(user)">

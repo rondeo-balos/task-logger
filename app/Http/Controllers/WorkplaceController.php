@@ -95,7 +95,10 @@ class WorkplaceController extends Controller {
     }
 
     public function giveWorkplacePermissionTo( Request $request, $id ) {
-        $permission = $request->get( 'permission' );
+        $permission = $request->get( 'permission', [] );
+        if (!is_array($permission)) {
+            $permission = [$permission];
+        }
         $email = $request->get( 'email' );
 
         $workplace = Workplace::find( $id );
@@ -104,6 +107,9 @@ class WorkplaceController extends Controller {
             if( $workplace && $user && $workplace->user_id === \Auth::user()->id ) {
 
                 foreach( $permission as $value ) {
+                    if (!$value) {
+                        continue;
+                    }
                     // Check if the permission exists, if not, create it
                     if( !Permission::where('name', "$value $id")->exists() ) {
                         Permission::create(['name' => "$value $id", 'guard_name' => 'web']);
@@ -124,12 +130,20 @@ class WorkplaceController extends Controller {
 
     public function revokeWorkplacePermissionTo( Request $request, $id ) {
         $email = $request->get( 'email' );
+        $permissions = $request->get('permission', ['read', 'write', 'view-other']);
+        if (!is_array($permissions)) {
+            $permissions = [$permissions];
+        }
         $workplace = Workplace::find( $id );
         
         $user = User::where( 'email', $email )->firstOrFail();
         if( $workplace && $user && $workplace->user_id === \Auth::user()->id ) {
-            $user->revokePermissionTo( "read $id" );
-            $user->revokePermissionTo( "write $id" );
+            foreach ($permissions as $value) {
+                if (!$value) {
+                    continue;
+                }
+                $user->revokePermissionTo( "$value $id" );
+            }
         }
 
         return Redirect::back();
