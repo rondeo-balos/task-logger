@@ -16,10 +16,25 @@ class TasksController extends Controller {
     }
     
     public static function list( Request $request ) {
-        $filters = $request->only(['range', 'user']); // Extract only the range parameter
-        if( empty($filters['range']) || !is_array($filters['range']) || count($filters['range']) !== 2 ) {
-            $filters['range'] = [ date('Y-m-01 00:00:00'), date('Y-m-t 23:59:59') ];
+        $sessionFilters = $request->session()->get('tasks.filters', []);
+        $incomingFilters = $request->only(['range', 'user']);
+
+        $range = $incomingFilters['range'] ?? $sessionFilters['range'] ?? null;
+        if( !is_array($range) || count($range) !== 2 ) {
+            $range = [ date('Y-m-01 00:00:00'), date('Y-m-t 23:59:59') ];
         }
+
+        $userFilter = array_key_exists('user', $incomingFilters)
+            ? $incomingFilters['user']
+            : ($sessionFilters['user'] ?? null);
+
+        $filters = [
+            'range' => $range,
+            'user' => $userFilter
+        ];
+
+        $request->session()->put('tasks.filters', $filters);
+
         $data = \Auth::user()->workplace->tasks()->with('user')->filter($filters)->get();
         
         $dailyTotals = [];
