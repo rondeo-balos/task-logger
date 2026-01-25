@@ -183,7 +183,21 @@ const handleDrop = (status) => {
     if (!draggedBoardId.value) return;
     const board = localBoards.value.find((b) => b.id === draggedBoardId.value);
     if (board && board.status !== status) {
+        const prevStatus = board.status;
         updateStatus(board, status);
+        board.status = status;
+        // optimistic history entry so UI updates before reload
+        const now = new Date().toISOString();
+        board.history = [
+            {
+                id: `temp-${now}`,
+                event: 'status_changed',
+                payload: { from: prevStatus, to: status },
+                created_at: now,
+                user: null,
+            },
+            ...(board.history || []),
+        ];
     }
     draggedBoardId.value = null;
 };

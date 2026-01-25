@@ -115,7 +115,6 @@ class BoardController extends Controller {
             'status' => session('status'),
             'notes' => $notes,
             'tags' => $tags,
-            'history' => $notes, // placeholder to keep prop structure, replace with real history when available
         ]);
     }
 
@@ -184,6 +183,13 @@ class BoardController extends Controller {
             }
         }
 
+        // capture originals before mutating
+        $originalStatus = $board->status;
+        $originalTitle = $board->title;
+        $originalDue = $board->due_date ? \Carbon\Carbon::parse($board->due_date)->toDateString() : null;
+        $originalDescription = $board->description;
+        $originalAssignees = $board->users()->pluck('users.id')->sort()->values()->all();
+
         $board->update([
             'title' => $validated['title'] ?? $board->title,
             'description' => $validated['description'] ?? $board->description,
@@ -197,45 +203,55 @@ class BoardController extends Controller {
         }
 
         $changes = [];
-        $original = $board->getOriginal();
-        if (array_key_exists('status', $validated) && $validated['status'] !== $original['status']) {
+        if (array_key_exists('status', $validated) && $validated['status'] !== $originalStatus) {
             $changes[] = [
                 'event' => 'status_changed',
                 'payload' => [
-                    'from' => $original['status'],
+                    'from' => $originalStatus,
                     'to' => $validated['status'],
                 ],
             ];
         }
         if (array_key_exists('due_date', $validated)) {
-            $from = $original['due_date'] ? \Carbon\Carbon::parse($original['due_date'])->toDateString() : null;
             $to = $validated['due_date'] ?? null;
-            if ($from !== $to) {
+            if ($originalDue !== $to) {
                 $changes[] = [
                     'event' => 'due_date_changed',
                     'payload' => [
-                        'from' => $from,
+                        'from' => $originalDue,
                         'to' => $to,
                     ],
                 ];
             }
         }
-        if (array_key_exists('title', $validated) && $validated['title'] !== $original['title']) {
+        if (array_key_exists('title', $validated) && $validated['title'] !== $originalTitle) {
             $changes[] = [
                 'event' => 'title_changed',
                 'payload' => [
-                    'from' => $original['title'],
+                    'from' => $originalTitle,
                     'to' => $validated['title'],
                 ],
             ];
         }
+        if (array_key_exists('description', $validated)) {
+            $newDesc = $validated['description'] ?? [];
+            if ($newDesc != $originalDescription) {
+                $changes[] = [
+                    'event' => 'description_changed',
+                    'payload' => [],
+                ];
+            }
+        }
         if (array_key_exists('assigned_users', $validated)) {
-            $changes[] = [
-                'event' => 'assignees_updated',
-                'payload' => [
-                    'user_ids' => $validated['assigned_users'] ?? [],
-                ],
-            ];
+            $newAssignees = collect($validated['assigned_users'] ?? [])->sort()->values()->all();
+            if ($newAssignees !== $originalAssignees) {
+                $changes[] = [
+                    'event' => 'assignees_updated',
+                    'payload' => [
+                        'user_ids' => $newAssignees,
+                    ],
+                ];
+            }
         }
 
         foreach ($changes as $change) {
