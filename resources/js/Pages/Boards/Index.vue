@@ -402,9 +402,14 @@ const handleDrop = (status) => {
                     </button>
                 </div>
             </div>
-            <div>
+            <div class="space-y-1">
                 <label class="text-sm text-gray-300">Attachments</label>
-                <input type="file" multiple class="text-sm text-gray-300" @change="handleCreateFiles" />
+                <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-[var(--separator)] bg-[var(--body-bg)] text-sm text-gray-300 hover:border-blue-500 cursor-pointer">
+                    <PaperClipIcon class="size-4 opacity-70" />
+                    <span>Select files</span>
+                    <input type="file" multiple class="hidden" @change="handleCreateFiles" />
+                </label>
+                <p class="text-xs text-gray-500" v-if="createForm.attachments?.length">Selected: {{ createForm.attachments.length }} file(s)</p>
             </div>
             <div class="flex justify-end">
                 <button type="button" class="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 text-white" :disabled="createForm.processing" @click="submitCreate">
@@ -501,9 +506,14 @@ const handleDrop = (status) => {
                         </button>
                     </div>
                 </div>
-                <div>
+                <div class="space-y-1">
                     <label class="text-sm text-gray-300">Add attachments</label>
-                    <input type="file" multiple class="text-sm text-gray-300" @change="handleEditFiles" />
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-[var(--separator)] bg-[var(--body-bg)] text-sm text-gray-300 hover:border-blue-500 cursor-pointer">
+                        <PaperClipIcon class="size-4 opacity-70" />
+                        <span>Select files</span>
+                        <input type="file" multiple class="hidden" @change="handleEditFiles" />
+                    </label>
+                    <p class="text-xs text-gray-500" v-if="editForm.attachments?.length">Selected: {{ editForm.attachments.length }} file(s)</p>
                 </div>
                 <div class="flex justify-end">
                     <button type="button" class="px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 text-white" :disabled="editForm.processing" @click="submitEdit">
