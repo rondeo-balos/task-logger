@@ -4,7 +4,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const props = defineProps([ 'workplace_id', 'users' ]);
@@ -17,14 +17,38 @@ const giveAccessForm = useForm({
     email: ''
 });
 
+const revokeAccessForm = useForm({
+    email: ''
+});
+
 const handleSubmit = () => {
+    giveAccessForm.permission = [];
     if( read.value )
         giveAccessForm.permission.push( 'read' );
     if( write.value )
         giveAccessForm.permission.push( 'write' );
 
     giveAccessForm.post( route('workplace.give', [props.workplace_id]), {
-        onSuccess: page => {}
+        preserveScroll: true,
+        onFinish: () => {
+            giveAccessForm.permission = [];
+        }
+    });
+};
+
+const accessForUser = (user) => {
+    const names = (user.permissions || []).map(p => p.name ?? p);
+    const read = names.includes(`read ${props.workplace_id}`);
+    const write = names.includes(`write ${props.workplace_id}`);
+    return { read, write };
+};
+
+const revokeAccess = (user) => {
+    if (!confirm(`Revoke all access for ${user.email}?`)) return;
+    revokeAccessForm.email = user.email;
+    revokeAccessForm.post(route('workplace.revoke', [props.workplace_id]), {
+        preserveScroll: true,
+        onFinish: () => revokeAccessForm.reset('email')
     });
 };
 </script>
@@ -34,7 +58,7 @@ const handleSubmit = () => {
         <div>
             <header>
                 <h2 class="text-lg font-medium text-gray-900">
-                    Give Access to workplace
+                    Give Access to workspace
                 </h2>
             </header>
 
@@ -79,10 +103,18 @@ const handleSubmit = () => {
                         </tr>
                     </thead>
                     <tbody class="divide-y bg-gray-800 divide-gray-700">
-                        <tr v-for="user in users" class="hover:bg-gray-700">
+                        <tr v-for="user in users" :key="user.id" class="hover:bg-gray-700">
                             <td class="p-4">{{ user.email }}</td>
-                            <td class="p-4"></td>
-                            <td class="p-4"></td>
+                            <td class="p-4 space-x-2">
+                                <span v-if="accessForUser(user).read" class="px-2 py-1 text-xs rounded bg-green-900 text-green-200">Read</span>
+                                <span v-if="accessForUser(user).write" class="px-2 py-1 text-xs rounded bg-blue-900 text-blue-200">Write</span>
+                                <span v-if="!accessForUser(user).read && !accessForUser(user).write" class="text-xs text-gray-500">No access</span>
+                            </td>
+                            <td class="p-4">
+                                <button type="button" class="text-sm text-red-400 hover:text-red-200" :disabled="revokeAccessForm.processing" @click="revokeAccess(user)">
+                                    Revoke
+                                </button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

@@ -12,8 +12,8 @@ const updateWorkplaceForm = useForm({
 });
 
 const handleSubmit = () => {
-    updateWorkplaceForm.post( route('workplace.update'), {
-        onSuccess: page => {}
+    updateWorkplaceForm.patch( route('workplace.update', [props.workplace.id]), {
+        preserveScroll: true
     });
 };
 </script>
@@ -22,17 +22,17 @@ const handleSubmit = () => {
     <section>
         <header>
             <h2 class="text-lg font-medium text-gray-900">
-                Workplace Information
+                Workspace Information
             </h2>
         </header>
 
-        <form class="w-full mt-6 space-y-6">
-            <div>
-                <InputLabel for="name" value="Name" />
-                <TextInput v-model="updateWorkplaceForm.name"  id="name" type="text" class="mt-1 block w-full"/>
-                <InputError class="mt-2" :message="''" />
-            </div>
-            <PrimaryButton type="submit" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1">Save</PrimaryButton>
-        </form>
-    </section>
-</template>
+            <form class="w-full mt-6 space-y-6" @submit.prevent="handleSubmit">
+                <div>
+                    <InputLabel for="name" value="Name" />
+                    <TextInput v-model="updateWorkplaceForm.name"  id="name" type="text" class="mt-1 block w-full"/>
+                    <InputError class="mt-2" :message="updateWorkplaceForm.errors.name" />
+                </div>
+                <PrimaryButton type="submit" class="p-2 px-3 bg-blue-700 hover:bg-blue-600 flex flex-row gap-1" :class="{ 'opacity-25': updateWorkplaceForm.processing }" :disabled="updateWorkplaceForm.processing">Save</PrimaryButton>
+            </form>
+        </section>
+    </template>

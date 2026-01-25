@@ -52,10 +52,11 @@ Route::middleware('auth')->group(function() {
 Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set')->middleware([ 'auth' ]);
 Route::post('/workplace/new', [WorkplaceController::class, 'create'])->name('workplace.create');
 
-Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
-    Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');
-    Route::post( '/workplace/give/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
-    Route::post( '/workplace/revoke/{id}', [WorkplaceController::class, 'revokeWorkplacePermissionTo'])->name('workplace.revoke');
+    Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
+        Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');
+        Route::patch('/workplace/{id}', [WorkplaceController::class, 'update'])->name('workplace.update');
+        Route::post( '/workplace/give/{id}', [WorkplaceController::class, 'giveWorkplacePermissionTo'])->name('workplace.give');
+        Route::post( '/workplace/revoke/{id}', [WorkplaceController::class, 'revokeWorkplacePermissionTo'])->name('workplace.revoke');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

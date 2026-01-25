@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Log;
-use Redirect;
 use App\Models\Tags;
 use App\Models\User;
 use App\Models\Workplace;
 use App\Notifications\AccessShared;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 
@@ -56,9 +57,21 @@ class WorkplaceController extends Controller {
     }
 
     public function update( Request $request, $id ) {
-        $data = $request->all();
-        Workplace::find($id)->update( $data );
-        return Redirect::route( 'home' );
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $workplace = Workplace::findOrFail($id);
+        if ($workplace->user_id !== Auth::id()) {
+            abort(403, 'You are not authorized to update this workplace.');
+        }
+
+        $workplace->update($validated);
+
+        return Redirect::back()->with('status', [
+            'code' => 200,
+            'status' => 'Workplace updated.',
+        ]);
     }
 
     /**
@@ -66,7 +79,7 @@ class WorkplaceController extends Controller {
      */
     public function edit( Request $request, $id ) {
         $workplace = Workplace::find($id);
-        $users = User::whereHas( 'permissions', function($query) use ($id) {
+        $users = User::with('permissions')->whereHas( 'permissions', function($query) use ($id) {
             $query->where( 'name', 'LIKE', '% ' . $id );
         })->get();
         return Inertia::render('Workplace/Edit', [
