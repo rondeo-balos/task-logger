@@ -64,6 +64,7 @@ class BoardController extends Controller {
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'gravatar' => md5(strtolower(trim($user->email ?? ''))),
                 ])->values(),
                 'tasks' => $tasks,
                 'total_logged' => $board->tasks->sum(fn ($task) => ($task->end - $task->start)),
@@ -75,8 +76,15 @@ class BoardController extends Controller {
         $sharedWorkplaces = Auth::user()->sharedWorkplaces();
 
         $workplaceUsers = User::whereHas('permissions', function ($query) use ($workplaceId) {
-            $query->where('name', 'LIKE', '% ' . $workplaceId);
-        })->orWhere('id', $workplace?->user_id)->get(['id', 'name', 'email'])->unique('id')->values();
+                $query->where('name', 'LIKE', '% ' . $workplaceId);
+            })
+            ->orWhere('id', $workplace?->user_id)
+            ->get(['id', 'name', 'email'])->unique('id')->map(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'gravatar' => md5(strtolower(trim($user->email ?? '')))
+            ])->values();
 
         $tags = TagsController::list();
         $notes = NotesController::list();

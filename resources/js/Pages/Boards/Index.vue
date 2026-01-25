@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import MasterSidebar from '../Partials/MasterSidebar.vue';
 import Offcanvas from '@/Components/Offcanvas.vue';
 import NotificationStack from '../Partials/NotificationStack.vue';
@@ -47,13 +47,18 @@ const editTab = ref('details');
 const statusForm = useForm({ status: '' });
 const deleteForm = useForm({});
 
+const localBoards = ref([...props.boards]);
+watch(() => props.boards, (val) => {
+    localBoards.value = [...val];
+}, { deep: true });
+
 const groupedBoards = computed(() => {
     const groups = {};
     (props.statuses || []).forEach((status) => {
         groups[status] = [];
     });
 
-    (props.boards || []).forEach((board) => {
+    (localBoards.value || []).forEach((board) => {
         const key = groups[board.status] ? board.status : (props.statuses?.[0] ?? 'pending');
         groups[key].push(board);
     });
@@ -64,6 +69,11 @@ const groupedBoards = computed(() => {
 const statusLabel = (status) => status.replace('-', ' ');
 
 const userInitials = (user) => (user.name || user.email || '?').slice(0, 2).toUpperCase();
+
+const gravatarUrl = (user) => {
+    if (!user?.gravatar) return null;
+    return `https://gravatar.com/avatar/${user.gravatar}?s=64&d=identicon`;
+};
 
 const descriptionSnippet = (board) => {
     const raw = Array.isArray(board.description)
@@ -137,6 +147,8 @@ const updateStatus = (board, status) => {
     statusForm.patch(route('boards.update', board.id), {
         preserveScroll: true,
     });
+    const target = localBoards.value.find((b) => b.id === board.id);
+    if (target) target.status = status;
 };
 
 const deleteBoard = (board) => {
@@ -158,6 +170,22 @@ const formatTaskRange = (task) => {
     if (!start || !end) return '';
     const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     return `${fmt(start)} → ${fmt(end)}`;
+};
+
+const draggedBoardId = ref(null);
+const handleDragStart = (boardId) => {
+    draggedBoardId.value = boardId;
+};
+const handleDragOver = (event) => {
+    event.preventDefault();
+};
+const handleDrop = (status) => {
+    if (!draggedBoardId.value) return;
+    const board = localBoards.value.find((b) => b.id === draggedBoardId.value);
+    if (board && board.status !== status) {
+        updateStatus(board, status);
+    }
+    draggedBoardId.value = null;
 };
 </script>
 
@@ -192,30 +220,45 @@ const formatTaskRange = (task) => {
                         </div>
                     </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                            <div v-for="status in statuses" :key="status" class="bg-[var(--card-bg)] border border-[var(--separator)] rounded-lg shadow-md flex flex-col">
-                                <div class="flex items-center justify-between px-3 py-2 border-b border-[var(--separator)]">
-                                    <span class="font-semibold text-white capitalize">{{ statusLabel(status) }}</span>
-                                    <span class="text-xs text-gray-400">{{ groupedBoards[status]?.length || 0 }} boards</span>
-                                </div>
-                                <div class="p-3 space-y-3 overflow-y-auto max-h-[70vh]">
-                                    <div v-for="board in groupedBoards[status]" :key="board.id" class="bg-[var(--body-bg)] border border-[var(--separator)] rounded-md p-3 space-y-2 shadow-sm">
-                                        <div class="flex items-start justify-between gap-2">
-                                            <div class="space-y-1">
-                                                <h3 class="text-lg font-semibold text-white">{{ board.title }}</h3>
-                                                <p class="text-sm text-gray-400" v-if="descriptionSnippet(board)">{{ descriptionSnippet(board) }}</p>
-                                                <p class="text-xs text-amber-300" v-if="board.due_date">Due: {{ formattedDate(board.due_date) }}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <div
+                            v-for="status in statuses"
+                            :key="status"
+                            class="bg-[var(--card-bg)] border border-[var(--separator)] rounded-lg shadow-md flex flex-col"
+                            @dragover="handleDragOver"
+                            @drop="() => handleDrop(status)"
+                        >
+                            <div class="flex items-center justify-between px-3 py-2 border-b border-[var(--separator)]">
+                                <span class="font-semibold text-white capitalize">{{ statusLabel(status) }}</span>
+                                <span class="text-xs text-gray-400">{{ groupedBoards[status]?.length || 0 }} boards</span>
+                            </div>
+                            <div class="p-3 space-y-3 overflow-y-auto max-h-[70vh]">
+                                <div
+                                    v-for="board in groupedBoards[status]"
+                                    :key="board.id"
+                                    class="bg-[var(--body-bg)] border border-[var(--separator)] rounded-md p-3 space-y-2 shadow-sm"
+                                    draggable="true"
+                                    @dragstart="() => handleDragStart(board.id)"
+                                >
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="space-y-1">
+                                            <h3 class="text-lg font-semibold text-white">{{ board.title }}</h3>
+                                            <p class="text-sm text-gray-400" v-if="descriptionSnippet(board)">{{ descriptionSnippet(board) }}</p>
+                                            <p class="text-xs text-amber-300" v-if="board.due_date">Due: {{ formattedDate(board.due_date) }}</p>
                                             </div>
                                             <button type="button" class="text-gray-400 hover:text-white" @click="openEdit(board)">
                                                 <PencilIcon class="size-5" />
                                             </button>
                                         </div>
 
-                                        <div class="flex flex-wrap gap-2">
-                                            <span v-for="user in board.users" :key="user.id" class="px-2 py-1 text-xs rounded bg-blue-900 text-blue-100">
-                                                {{ user.name }}
+                                    <div class="flex flex-wrap gap-2 items-center">
+                                        <div v-for="user in board.users" :key="user.id" class="flex items-center gap-1 text-xs text-gray-200">
+                                            <img v-if="gravatarUrl(user)" :src="gravatarUrl(user)" class="size-6 rounded-full border border-[var(--separator)]" :title="user.name" />
+                                            <span v-else class="size-6 rounded-full bg-blue-800 text-white flex items-center justify-center font-semibold">
+                                                {{ userInitials(user) }}
                                             </span>
                                         </div>
+                                    </div>
 
                                         <div class="text-xs text-gray-400">
                                             Logged {{ FormatElapsedTime(board.total_logged || 0) }} • {{ board.tasks.length }} tasks
@@ -232,17 +275,33 @@ const formatTaskRange = (task) => {
                                             </ul>
                                         </div>
 
-                                        <div class="flex flex-wrap gap-2 items-center">
-                                            <select :value="board.status" class="bg-transparent border border-[var(--separator)] rounded px-2 py-1 text-sm text-white" @change="(e) => updateStatus(board, e.target.value)">
-                                                <option v-for="opt in statuses" :key="opt" :value="opt" class="bg-[var(--card-bg)] text-white">
-                                                    {{ statusLabel(opt) }}
-                                                </option>
-                                            </select>
-                                            <Link :href="route('home', { resume_title: board.title, resume_board_id: board.id })" class="flex items-center gap-1 px-2 py-1 rounded bg-green-700 hover:bg-green-600 text-white text-sm">
-                                                <PlayIcon class="size-4" /> Start task
-                                            </Link>
-                                            <button type="button" class="text-xs text-red-400 hover:text-red-200 ml-auto flex items-center gap-1" :disabled="deleteForm.processing" @click="deleteBoard(board)">
-                                                <TrashIcon class="size-4" /> Delete
+                                    <div class="flex flex-wrap gap-2 items-center">
+                                        <Dropdown align="left" width="48">
+                                            <template #trigger>
+                                                <button type="button" class="flex items-center gap-2 px-2 py-1 rounded border border-[var(--separator)] bg-[var(--body-bg)] text-white text-sm hover:border-blue-500">
+                                                    <span class="capitalize">{{ statusLabel(board.status) }}</span>
+                                                    <TagIcon class="size-4 opacity-60" />
+                                                </button>
+                                            </template>
+                                            <template #content>
+                                                <div class="bg-[var(--card-bg)] text-white rounded-md shadow-lg border border-[var(--separator)]">
+                                                    <button
+                                                        v-for="opt in statuses"
+                                                        :key="opt"
+                                                        type="button"
+                                                        class="w-full text-left px-3 py-2 text-sm hover:bg-blue-900/40"
+                                                        @click="updateStatus(board, opt)"
+                                                    >
+                                                        {{ statusLabel(opt) }}
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </Dropdown>
+                                        <Link :href="route('home', { resume_title: board.title, resume_board_id: board.id })" class="flex items-center gap-1 px-2 py-1 rounded bg-green-700 hover:bg-green-600 text-white text-sm">
+                                            <PlayIcon class="size-4" /> Start task
+                                        </Link>
+                                        <button type="button" class="text-xs text-red-400 hover:text-red-200 ml-auto flex items-center gap-1" :disabled="deleteForm.processing" @click="deleteBoard(board)">
+                                            <TrashIcon class="size-4" /> Delete
                                             </button>
                                         </div>
                                     </div>
@@ -332,7 +391,8 @@ const formatTaskRange = (task) => {
                                 : 'border-[var(--separator)] bg-[var(--body-bg)] text-gray-200 hover:border-blue-700'
                         ]"
                     >
-                        <span class="size-8 rounded-full bg-blue-800 text-white flex items-center justify-center font-semibold text-xs">
+                        <img v-if="gravatarUrl(user)" :src="gravatarUrl(user)" class="size-6 rounded-full border border-[var(--separator)]" :title="user.name" />
+                        <span v-else class="size-6 rounded-full bg-blue-800 text-white flex items-center justify-center font-semibold p-4">
                             {{ userInitials(user) }}
                         </span>
                         <span class="text-sm leading-tight">
@@ -430,7 +490,8 @@ const formatTaskRange = (task) => {
                                     : 'border-[var(--separator)] bg-[var(--body-bg)] text-gray-200 hover:border-blue-700'
                             ]"
                         >
-                            <span class="size-8 rounded-full bg-blue-800 text-white flex items-center justify-center font-semibold text-xs">
+                            <img v-if="gravatarUrl(user)" :src="gravatarUrl(user)" class="size-6 rounded-full border border-[var(--separator)]" :title="user.name" />
+                            <span v-else class="size-6 rounded-full bg-blue-800 text-white flex items-center justify-center font-semibold p-4">
                                 {{ userInitials(user) }}
                             </span>
                             <span class="text-sm leading-tight">
