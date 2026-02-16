@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class BoardController extends Controller {
-    private const STATUSES = ['pending', 'in-progress', 'to-review', 'completed'];
+    private const STATUSES = ['pending', 'in-progress', 'to-review', 'completed', 'archive'];
 
     public function index(Request $request) {
         $workplace = Auth::user()->workplace;

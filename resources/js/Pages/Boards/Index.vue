@@ -14,6 +14,9 @@ import Tags from '../Partials/Tags.vue';
 import Sidebar from '../Partials/Sidebar.vue';
 
 const props = defineProps(['boards', 'users', 'statuses', 'workplaces', 'status', 'tags', 'notes']);
+const hiddenStatuses = new Set(['archive']);
+const visibleStatuses = computed(() => (props.statuses || []).filter((status) => !hiddenStatuses.has(status)));
+const defaultBoardStatus = computed(() => visibleStatuses.value[0] ?? 'pending');
 
 const showCollectionCanvas = ref(false);
 const showTagsCanvas = ref(false);
@@ -25,7 +28,7 @@ const activeBoard = ref(null);
 const createForm = useForm({
     title: '',
     description: [''],
-    status: props.statuses?.[0] ?? 'pending',
+    status: defaultBoardStatus.value,
     due_date: '',
     attachments: [],
     assigned_users: []
@@ -54,13 +57,22 @@ watch(() => props.boards, (val) => {
 
 const groupedBoards = computed(() => {
     const groups = {};
-    (props.statuses || []).forEach((status) => {
+    visibleStatuses.value.forEach((status) => {
         groups[status] = [];
     });
 
+    const fallbackStatus = visibleStatuses.value[0];
     (localBoards.value || []).forEach((board) => {
-        const key = groups[board.status] ? board.status : (props.statuses?.[0] ?? 'pending');
-        groups[key].push(board);
+        if (hiddenStatuses.has(board.status)) return;
+
+        if (groups[board.status]) {
+            groups[board.status].push(board);
+            return;
+        }
+
+        if (fallbackStatus) {
+            groups[fallbackStatus].push(board);
+        }
     });
 
     return groups;
@@ -99,7 +111,7 @@ const handleEditFiles = (event) => {
 
 const openCreate = () => {
     createForm.reset();
-    createForm.status = props.statuses?.[0] ?? 'pending';
+    createForm.status = defaultBoardStatus.value;
     createForm.description = [''];
     createForm.assigned_users = [];
     showCreate.value = true;
@@ -112,7 +124,7 @@ const submitCreate = () => {
         onSuccess: () => {
             showCreate.value = false;
             createForm.reset();
-            createForm.status = props.statuses?.[0] ?? 'pending';
+            createForm.status = defaultBoardStatus.value;
             createForm.description = [''];
         }
     });
@@ -236,7 +248,7 @@ const handleDrop = (status) => {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                         <div
-                            v-for="status in statuses"
+                            v-for="status in visibleStatuses"
                             :key="status"
                             class="bg-[var(--card-bg)] border border-[var(--separator)] rounded-lg shadow-md flex flex-col"
                             @dragover="handleDragOver"
