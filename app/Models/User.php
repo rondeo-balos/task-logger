@@ -52,8 +52,8 @@ class User extends Authenticatable {
     }
 
     public function workplace(): Attribute {
-        return new Attribute(
+        return Attribute::make(
             get: fn () => Workplace::find( session('workplace', 1) )
-        );
+        )->withoutObjectCaching();
     }
 }
