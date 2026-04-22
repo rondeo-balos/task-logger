@@ -273,8 +273,8 @@ const handleDrop = (status) => {
         <div class="max-h-full w-full relative">
             <div class="bg-[var(--body-bg)] w-full h-full max-h-full overflow-y-auto">
                 <div class="flex flex-row content-evenly min-h-full">
-                    <div v-if="!is_shared_workspace" class="w-64">
-                        <Sidebar v-model:collection="showCollectionCanvas" v-model:tag="showTagsCanvas" v-model:pending="showPending" />
+                    <div class="w-64">
+                        <Sidebar v-model:collection="showCollectionCanvas" v-model:tag="showTagsCanvas" v-model:pending="showPending" :is_shared="is_shared_workspace" />
                     </div>
                     <div class="p-6 space-y-6 w-full">
                     <div class="flex flex-wrap items-center justify-between gap-3">
