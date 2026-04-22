@@ -18,6 +18,7 @@ class Board extends Model {
         'due_date',
         'attachments',
         'workplace_id',
+        'shared_workplace_id',
     ];
 
     protected function casts(): array {
@@ -50,6 +51,10 @@ class Board extends Model {
 
     public function workplace() {
         return $this->belongsTo(Workplace::class);
+    }
+
+    public function sharedWorkplace() {
+        return $this->belongsTo(Workplace::class, 'shared_workplace_id');
     }
 
     public function history() {

@@ -24,7 +24,7 @@ class Tasks extends Model {
 
     protected static function booted() {
         static::creating( function( $model ) {
-            if (session()->has('workplace')) {
+            if (session()->has('workplace') && is_null($model->workplace_id)) {
                 $model->workplace_id = session('workplace');
             }
 

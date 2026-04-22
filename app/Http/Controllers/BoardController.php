@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Board;
 use App\Models\User;
 use App\Models\BoardHistory;
+use App\Models\UserWorkspacePreference;
+use App\Models\Workplace;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\NotesController;
 use Illuminate\Http\Request;
@@ -22,7 +24,34 @@ class BoardController extends Controller {
 
         $user = Auth::user();
         $userPermissions = $user->getAllPermissions()->pluck('name');
-        $canViewOthers = $workplaceId && ($workplace?->user_id === $user->id || $userPermissions->contains("view-other $workplaceId"));
+        $canViewOthers = $workplaceId && (
+            $workplace?->user_id === $user->id ||
+            $userPermissions->contains("view-other $workplaceId") ||
+            $workplace?->is_shareable
+        );
+        $isSharedWorkspace = $workplace?->is_shareable ?? false;
+
+        $workplaces = Auth::user()->workplaces;
+        $personalWorkplaces = $workplaces->filter(fn ($wp) => !$wp->is_shareable)->values()
+            ->map(fn ($wp) => ['id' => $wp->id, 'name' => $wp->name]);
+
+        $needsWorkspaceSelection = false;
+        if ($isSharedWorkspace && $workplaceId) {
+            $preference = UserWorkspacePreference::where('user_id', $user->id)
+                ->where('shared_workspace_id', $workplaceId)
+                ->first();
+            if (!$preference) {
+                if ($personalWorkplaces->count() === 1) {
+                    UserWorkspacePreference::create([
+                        'user_id'               => $user->id,
+                        'shared_workspace_id'   => $workplaceId,
+                        'personal_workspace_id' => $personalWorkplaces->first()['id'],
+                    ]);
+                } else {
+                    $needsWorkspaceSelection = true;
+                }
+            }
+        }
 
         $boards = Board::with([
             'users:id,name,email',
@@ -37,6 +66,7 @@ class BoardController extends Controller {
             },
         ])
         ->where('workplace_id', $workplaceId)
+        ->orWhere('shared_workplace_id', $workplaceId)
         ->get()
         ->map(function ($board) {
             $attachments = collect($board->attachments ?? [])->map(fn ($path) => [
@@ -50,6 +80,7 @@ class BoardController extends Controller {
                     'title' => $task->title,
                     'start' => $task->start,
                     'end' => $task->end,
+                    'description' => $task->description ?? [],
                     'user' => $task->user ? [
                         'id' => $task->user->id,
                         'name' => $task->user->name,
@@ -71,6 +102,8 @@ class BoardController extends Controller {
                     'gravatar' => md5(strtolower(trim($user->email ?? ''))),
                 ])->values(),
                 'tasks' => $tasks,
+                'shared_workplace_id' => $board->shared_workplace_id,
+                'is_assigned' => $board->users->contains('id', Auth::id()),
                 'total_logged' => $board->tasks->sum(fn ($task) => ($task->end - $task->start)),
                 'history' => $board->history->map(function ($entry) {
                     return [
@@ -90,7 +123,6 @@ class BoardController extends Controller {
         })
         ->values();
 
-        $workplaces = Auth::user()->workplaces;
         $sharedWorkplaces = Auth::user()->sharedWorkplaces();
 
         $workplaceUsers = User::whereHas('permissions', function ($query) use ($workplaceId) {
@@ -104,17 +136,44 @@ class BoardController extends Controller {
                 'gravatar' => md5(strtolower(trim($user->email ?? '')))
             ])->values();
 
+        $allVisible = $workplaces->merge($sharedWorkplaces);
+        $shareableWorkplaces = $allVisible->filter(fn ($wp) => $wp->is_shareable)
+            ->map(function ($wp) {
+                $wpId = $wp->id;
+                $users = User::whereHas('permissions', fn ($q) =>
+                        $q->where('name', 'LIKE', '% ' . $wpId))
+                    ->orWhere('id', $wp->user_id)
+                    ->get(['id', 'name', 'email'])
+                    ->unique('id')
+                    ->map(fn ($u) => [
+                        'id'       => $u->id,
+                        'name'     => $u->name,
+                        'email'    => $u->email,
+                        'gravatar' => md5(strtolower(trim($u->email ?? ''))),
+                    ])->values();
+                return [
+                    'id'    => $wp->id,
+                    'name'  => $wp->name,
+                    'users' => $users,
+                ];
+            })->values();
+
         $tags = TagsController::list();
         $notes = NotesController::list();
 
         return Inertia::render('Boards/Index', [
-            'boards' => $boards,
-            'users' => $workplaceUsers,
-            'statuses' => self::STATUSES,
-            'workplaces' => $workplaces->merge($sharedWorkplaces),
-            'status' => session('status'),
-            'notes' => $notes,
-            'tags' => $tags,
+            'boards'               => $boards,
+            'users'                => $workplaceUsers,
+            'statuses'             => self::STATUSES,
+            'workplaces'           => $workplaces->merge($sharedWorkplaces),
+            'shareable_workplaces' => $shareableWorkplaces,
+            'status'               => session('status'),
+            'notes'                => $notes,
+            'tags'                 => $tags,
+            'is_shared_workspace'        => $isSharedWorkspace,
+            'needs_workspace_selection'  => $needsWorkspaceSelection,
+            'personal_workplaces'        => $personalWorkplaces,
+            'current_workplace_id'       => $workplaceId,
         ]);
     }
 
@@ -127,6 +186,7 @@ class BoardController extends Controller {
             'attachments.*' => ['file', 'max:5120'],
             'assigned_users' => ['nullable', 'array'],
             'assigned_users.*' => ['exists:users,id'],
+            'shared_workplace_id' => ['nullable', 'exists:workplaces,id'],
         ]);
 
         $attachments = [];
@@ -142,6 +202,7 @@ class BoardController extends Controller {
             'status' => $validated['status'] ?? 'pending',
             'due_date' => $validated['due_date'] ?? null,
             'attachments' => $attachments,
+            'shared_workplace_id' => ($validated['shared_workplace_id'] ?? null) ?: null,
         ]);
 
         $board->users()->sync($validated['assigned_users'] ?? []);
@@ -174,6 +235,7 @@ class BoardController extends Controller {
             'attachments.*' => ['file', 'max:5120'],
             'assigned_users' => ['nullable', 'array'],
             'assigned_users.*' => ['exists:users,id'],
+            'shared_workplace_id' => ['nullable', 'exists:workplaces,id'],
         ]);
 
         $attachments = $board->attachments ?? [];
@@ -196,6 +258,9 @@ class BoardController extends Controller {
             'status' => $validated['status'] ?? $board->status,
             'due_date' => $validated['due_date'] ?? $board->due_date,
             'attachments' => $attachments,
+            'shared_workplace_id' => array_key_exists('shared_workplace_id', $validated)
+                ? (($validated['shared_workplace_id'] ?? null) ?: null)
+                : $board->shared_workplace_id,
         ]);
 
         if (array_key_exists('assigned_users', $validated)) {
@@ -288,7 +353,7 @@ class BoardController extends Controller {
 
     private function authorizeBoard(Board $board): void {
         $workplaceId = (int) session('workplace');
-        if ($board->workplace_id !== $workplaceId) {
+        if ($board->workplace_id !== $workplaceId && $board->shared_workplace_id !== $workplaceId) {
             abort(403, 'You are not authorized to modify this board.');
         }
     }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Tasks;
 use App\Models\User;
 use App\Models\Board;
+use App\Models\Workplace;
+use App\Models\UserWorkspacePreference;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -120,10 +122,29 @@ class TasksController extends Controller {
 
     public function create( Request $request ) {
         $data = $request->all();
+
+        $currentWorkplace = \Auth::user()->workplace;
+        if ($currentWorkplace && $currentWorkplace->is_shareable) {
+            $preference = UserWorkspacePreference::where('user_id', \Auth::id())
+                ->where('shared_workspace_id', $currentWorkplace->id)
+                ->first();
+            $personalWorkplace = $preference
+                ? Workplace::find($preference->personal_workspace_id)
+                : \Auth::user()->workplaces()->where('is_shareable', false)->first();
+            if ($personalWorkplace) {
+                $data['workplace_id'] = $personalWorkplace->id;
+            }
+        }
+
         if (!empty($data['board_id'])) {
             $boardId = (int) $data['board_id'];
+            $workplaceId = session('workplace');
             $hasBoard = Board::where('id', $boardId)
-                ->where('workplace_id', session('workplace'))
+                ->where(function ($q) use ($workplaceId) {
+                    $q->where('workplace_id', $workplaceId)
+                      ->orWhere('shared_workplace_id', $workplaceId)
+                      ->orWhereHas('users', fn ($q2) => $q2->where('users.id', \Auth::id()));
+                })
                 ->exists();
             if (! $hasBoard) {
                 unset($data['board_id']);
@@ -147,8 +168,13 @@ class TasksController extends Controller {
         unset($data['end_raw']);
         if (!empty($data['board_id'])) {
             $boardId = (int) $data['board_id'];
+            $workplaceId = session('workplace');
             $hasBoard = Board::where('id', $boardId)
-                ->where('workplace_id', session('workplace'))
+                ->where(function ($q) use ($workplaceId) {
+                    $q->where('workplace_id', $workplaceId)
+                      ->orWhere('shared_workplace_id', $workplaceId)
+                      ->orWhereHas('users', fn ($q2) => $q2->where('users.id', \Auth::id()));
+                })
                 ->exists();
             if (! $hasBoard) {
                 unset($data['board_id']);

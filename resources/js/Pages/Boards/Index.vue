@@ -13,7 +13,7 @@ import Collections from '../Partials/Collections.vue';
 import Tags from '../Partials/Tags.vue';
 import Sidebar from '../Partials/Sidebar.vue';
 
-const props = defineProps(['boards', 'users', 'statuses', 'workplaces', 'status', 'tags', 'notes']);
+const props = defineProps(['boards', 'users', 'statuses', 'workplaces', 'status', 'tags', 'notes', 'shareable_workplaces', 'is_shared_workspace', 'needs_workspace_selection', 'personal_workplaces', 'current_workplace_id']);
 const hiddenStatuses = new Set(['archive']);
 const visibleStatuses = computed(() => (props.statuses || []).filter((status) => !hiddenStatuses.has(status)));
 const defaultBoardStatus = computed(() => visibleStatuses.value[0] ?? 'pending');
@@ -31,7 +31,8 @@ const createForm = useForm({
     status: defaultBoardStatus.value,
     due_date: '',
     attachments: [],
-    assigned_users: []
+    assigned_users: [],
+    shared_workplace_id: null,
 });
 
 const editForm = useForm({
@@ -41,7 +42,8 @@ const editForm = useForm({
     status: 'pending',
     due_date: '',
     attachments: [],
-    assigned_users: []
+    assigned_users: [],
+    shared_workplace_id: null,
 });
 editForm.transform((data) => ({ ...data, _method: 'patch' }));
 
@@ -82,6 +84,51 @@ const statusLabel = (status) => status.replace('-', ' ');
 
 const userInitials = (user) => (user.name || user.email || '?').slice(0, 2).toUpperCase();
 
+const availableUsers = computed(() => {
+    const base = [...(props.users || [])];
+    const sw = (props.shareable_workplaces || [])
+        .find(w => w.id === editForm.shared_workplace_id);
+    if (!sw) return base;
+    const seen = new Set(base.map(u => u.id));
+    for (const u of (sw.users || [])) {
+        if (!seen.has(u.id)) { seen.add(u.id); base.push(u); }
+    }
+    return base;
+});
+
+const assignedUsersData = computed(() =>
+    availableUsers.value.filter(u => editForm.assigned_users.includes(u.id))
+);
+
+const createAvailableUsers = computed(() => {
+    const base = [...(props.users || [])];
+    const sw = (props.shareable_workplaces || [])
+        .find(w => w.id === createForm.shared_workplace_id);
+    if (!sw) return base;
+    const seen = new Set(base.map(u => u.id));
+    for (const u of (sw.users || [])) {
+        if (!seen.has(u.id)) { seen.add(u.id); base.push(u); }
+    }
+    return base;
+});
+
+const showWorkspaceSelection = ref(props.needs_workspace_selection ?? false);
+const workspacePrefForm = useForm({ personal_workspace_id: null });
+const submitWorkspacePreference = () => {
+    if (!workspacePrefForm.personal_workspace_id) return;
+    workspacePrefForm.post(route('workplace.preference', props.current_workplace_id), {
+        preserveScroll: true,
+        onSuccess: () => { showWorkspaceSelection.value = false; },
+    });
+};
+
+const showTaskDesc = ref(false);
+const activeDescTask = ref(null);
+const openTaskDesc = (task) => {
+    activeDescTask.value = task;
+    showTaskDesc.value = true;
+};
+
 const gravatarUrl = (user) => {
     if (!user?.gravatar) return null;
     return `https://gravatar.com/avatar/${user.gravatar}?s=64&d=identicon`;
@@ -114,6 +161,7 @@ const openCreate = () => {
     createForm.status = defaultBoardStatus.value;
     createForm.description = [''];
     createForm.assigned_users = [];
+    createForm.shared_workplace_id = null;
     showCreate.value = true;
 };
 
@@ -139,6 +187,7 @@ const openEdit = (board) => {
     editForm.due_date = board.due_date ? board.due_date.substring(0, 10) : '';
     editForm.assigned_users = (board.users || []).map((u) => u.id);
     editForm.attachments = [];
+    editForm.shared_workplace_id = board.shared_workplace_id ?? null;
     editTab.value = 'details';
     showEdit.value = true;
 };
@@ -224,7 +273,7 @@ const handleDrop = (status) => {
         <div class="max-h-full w-full relative">
             <div class="bg-[var(--body-bg)] w-full h-full max-h-full overflow-y-auto">
                 <div class="flex flex-row content-evenly min-h-full">
-                    <div class="w-64">
+                    <div v-if="!is_shared_workspace" class="w-64">
                         <Sidebar v-model:collection="showCollectionCanvas" v-model:tag="showTagsCanvas" v-model:pending="showPending" />
                     </div>
                     <div class="p-6 space-y-6 w-full">
@@ -233,7 +282,7 @@ const handleDrop = (status) => {
                             <h1 class="text-3xl font-black text-white">Task Manager</h1>
                             <p class="text-gray-400 text-sm">Kanban view for boards with quick time-tracking access.</p>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div v-if="!is_shared_workspace" class="flex items-center gap-2">
                             <button type="button" class="flex items-center gap-2 px-3 py-2 rounded border border-[var(--separator)] text-white hover:border-blue-500" @click="showTagsCanvas = true">
                                 <TagIcon class="size-4" /> Tags
                             </button>
@@ -268,7 +317,7 @@ const handleDrop = (status) => {
                                 >
                                     <div class="flex items-start justify-between gap-2">
                                         <div class="space-y-1">
-                                            <h3 class="text-lg font-semibold text-white">{{ board.title }}</h3>
+                                            <h3 class="text-lg font-semibold text-white cursor-pointer hover:text-blue-300 transition-colors" @click="openEdit(board)">{{ board.title }}</h3>
                                             <p class="text-sm text-gray-400" v-if="descriptionSnippet(board)">{{ descriptionSnippet(board) }}</p>
                                             <p class="text-xs text-amber-300" v-if="board.due_date">Due: {{ formattedDate(board.due_date) }}</p>
                                             </div>
@@ -323,7 +372,7 @@ const handleDrop = (status) => {
                                                 </div>
                                             </template>
                                         </Dropdown>
-                                        <Link :href="route('home', { resume_title: board.title, resume_board_id: board.id })" class="flex items-center gap-1 px-2 py-1 rounded bg-green-700 hover:bg-green-600 text-white text-sm">
+                                        <Link v-if="board.is_assigned" :href="route('home', { resume_title: board.title, resume_board_id: board.id })" class="flex items-center gap-1 px-2 py-1 rounded bg-green-700 hover:bg-green-600 text-white text-sm">
                                             <PlayIcon class="size-4" /> Start task
                                         </Link>
                                         <button type="button" class="text-xs text-red-400 hover:text-red-200 ml-auto flex items-center gap-1" :disabled="deleteForm.processing" @click="deleteBoard(board)">
@@ -399,6 +448,29 @@ const handleDrop = (status) => {
                     />
                 </div>
             </div>
+            <div v-if="shareable_workplaces?.length" class="space-y-1">
+                <label class="text-sm text-gray-300">Share to workspace</label>
+                <Dropdown align="left" width="48">
+                    <template #trigger>
+                        <button type="button" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-[var(--separator)] bg-[var(--body-bg)] text-white hover:border-blue-500 text-sm">
+                            <span>{{ shareable_workplaces.find(w => w.id === createForm.shared_workplace_id)?.name ?? 'None' }}</span>
+                            <TagIcon class="size-4 opacity-60" />
+                        </button>
+                    </template>
+                    <template #content>
+                        <div class="bg-[var(--card-bg)] text-white rounded-md shadow-lg border border-[var(--separator)]">
+                            <button type="button" class="w-full text-left px-3 py-2 text-sm hover:bg-blue-900/40" @click="createForm.shared_workplace_id = null">None</button>
+                            <button
+                                v-for="sw in shareable_workplaces"
+                                :key="sw.id"
+                                type="button"
+                                class="w-full text-left px-3 py-2 text-sm hover:bg-blue-900/40"
+                                @click="createForm.shared_workplace_id = sw.id"
+                            >{{ sw.name }}</button>
+                        </div>
+                    </template>
+                </Dropdown>
+            </div>
             <div>
                 <div class="flex items-center justify-between text-sm text-gray-300">
                     <span>Assign users</span>
@@ -406,7 +478,7 @@ const handleDrop = (status) => {
                 </div>
                 <div class="mt-2 grid grid-cols-2 gap-2">
                     <button
-                        v-for="user in users"
+                        v-for="user in createAvailableUsers"
                         :key="user.id"
                         type="button"
                         @click="toggleUserSelection(createForm, user.id)"
@@ -506,14 +578,43 @@ const handleDrop = (status) => {
                     />
                 </div>
             </div>
+            <div v-if="shareable_workplaces?.length" class="space-y-1">
+                <label class="text-sm text-gray-300">Share to workspace</label>
+                <Dropdown align="left" width="48">
+                    <template #trigger>
+                        <button type="button" class="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-[var(--separator)] bg-[var(--body-bg)] text-white hover:border-blue-500 text-sm">
+                            <span>{{ shareable_workplaces.find(w => w.id === editForm.shared_workplace_id)?.name ?? 'None' }}</span>
+                            <TagIcon class="size-4 opacity-60" />
+                        </button>
+                    </template>
+                    <template #content>
+                        <div class="bg-[var(--card-bg)] text-white rounded-md shadow-lg border border-[var(--separator)]">
+                            <button type="button" class="w-full text-left px-3 py-2 text-sm hover:bg-blue-900/40" @click="editForm.shared_workplace_id = null">None</button>
+                            <button
+                                v-for="sw in shareable_workplaces"
+                                :key="sw.id"
+                                type="button"
+                                class="w-full text-left px-3 py-2 text-sm hover:bg-blue-900/40"
+                                @click="editForm.shared_workplace_id = sw.id"
+                            >{{ sw.name }}</button>
+                        </div>
+                    </template>
+                </Dropdown>
+            </div>
             <div>
                 <div class="flex items-center justify-between text-sm text-gray-300">
                     <span>Assign users</span>
-                    <span class="text-xs text-gray-400">{{ editForm.assigned_users.length }} selected</span>
+                    <div class="flex items-center gap-1">
+                        <template v-for="u in assignedUsersData" :key="u.id">
+                            <img v-if="gravatarUrl(u)" :src="gravatarUrl(u)" class="size-5 rounded-full border border-[var(--separator)]" :title="u.name" />
+                            <span v-else class="size-5 rounded-full bg-blue-800 text-white text-[9px] flex items-center justify-center font-semibold" :title="u.name">{{ userInitials(u) }}</span>
+                        </template>
+                        <span class="text-xs text-gray-400 ml-1">{{ editForm.assigned_users.length }} selected</span>
                     </div>
+                </div>
                     <div class="mt-2 grid grid-cols-2 gap-2">
                         <button
-                            v-for="user in users"
+                            v-for="user in availableUsers"
                             :key="user.id"
                             type="button"
                             @click="toggleUserSelection(editForm, user.id)"
@@ -584,8 +685,15 @@ const handleDrop = (status) => {
                                 <div class="font-semibold text-white">{{ task.title }}</div>
                                 <div class="text-xs text-gray-400">{{ formatTaskRange(task) }}</div>
                             </div>
-                            <div class="text-xs text-gray-300">
-                                {{ FormatElapsedTime((task.end - task.start) || 0) }}
+                            <div class="flex items-center gap-2">
+                                <div class="text-xs text-gray-300">
+                                    {{ FormatElapsedTime((task.end - task.start) || 0) }}
+                                </div>
+                                <button type="button"
+                                        class="text-xs text-blue-400 hover:text-blue-200 transition-colors"
+                                        @click="openTaskDesc(task)">
+                                    Show notes
+                                </button>
                             </div>
                         </div>
                         <div class="text-xs text-gray-400 mt-1" v-if="task.user">
@@ -598,6 +706,20 @@ const handleDrop = (status) => {
         </div>
     </Offcanvas>
 
+    <Offcanvas v-model="showTaskDesc">
+        <h2 class="text-2xl font-bold mb-2">Describe the work you performed</h2>
+        <p class="text-sm text-gray-400 mb-4">{{ activeDescTask?.title }}</p>
+        <div class="space-y-3">
+            <div
+                v-for="(entry, i) in (activeDescTask?.description || [])"
+                :key="i"
+                class="prose prose-invert prose-sm max-w-none text-gray-200 bg-[var(--body-bg)] rounded p-3"
+                v-html="entry"
+            />
+            <p v-if="!activeDescTask?.description?.length" class="text-sm text-gray-400">No notes recorded.</p>
+        </div>
+    </Offcanvas>
+
     <Offcanvas v-model="showCollectionCanvas">
         <h2 class="text-2xl font-bold">Notes</h2>
         <Collections :notes="notes" />
@@ -607,6 +729,39 @@ const handleDrop = (status) => {
         <h2 class="text-2xl font-bold">Tags</h2>
         <Tags :tags="tags" />
     </Offcanvas>
+
+    <div v-if="showWorkspaceSelection" class="fixed inset-0 !z-[400] flex items-center justify-center bg-black/60">
+        <div class="bg-[var(--card-bg)] border border-[var(--separator)] rounded-xl shadow-2xl p-6 w-full max-w-sm space-y-4">
+            <h2 class="text-xl font-bold text-white">Select your personal workspace</h2>
+            <p class="text-sm text-gray-400">Choose which personal workspace to use for time tracking in this shared workspace.</p>
+            <div class="space-y-2">
+                <button
+                    v-for="wp in personal_workplaces"
+                    :key="wp.id"
+                    type="button"
+                    @click="workspacePrefForm.personal_workspace_id = wp.id"
+                    :class="[
+                        'w-full text-left px-4 py-3 rounded-lg border transition',
+                        workspacePrefForm.personal_workspace_id === wp.id
+                            ? 'border-blue-500 bg-blue-900/40 text-white'
+                            : 'border-[var(--separator)] bg-[var(--body-bg)] text-gray-200 hover:border-blue-700'
+                    ]"
+                >
+                    {{ wp.name }}
+                </button>
+            </div>
+            <div class="flex justify-end">
+                <button
+                    type="button"
+                    class="px-4 py-2 rounded bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-50"
+                    :disabled="!workspacePrefForm.personal_workspace_id || workspacePrefForm.processing"
+                    @click="submitWorkspacePreference"
+                >
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
 
     <NotificationStack :status="status" />
 </template>

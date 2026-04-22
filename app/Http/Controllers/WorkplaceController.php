@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tags;
 use App\Models\User;
 use App\Models\Workplace;
+use App\Models\UserWorkspacePreference;
 use App\Notifications\AccessShared;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,10 @@ class WorkplaceController extends Controller {
     public function create( Request $request ) {
         try {
             Log::info( 'creating workplace' );
-            $data = $request->all();
+            $data = $request->validate([
+                'name'         => ['required', 'string', 'max:255'],
+                'is_shareable' => ['nullable', 'boolean'],
+            ]);
             $id = Workplace::create( $data )->id;
             session()->put( 'workplace', $id );
             // Creating initial tags
@@ -129,6 +133,27 @@ class WorkplaceController extends Controller {
         }
 
         return Redirect::back();
+    }
+
+    public function saveWorkspacePreference( Request $request, $shared_workplace_id ) {
+        $validated = $request->validate([
+            'personal_workspace_id' => ['required', 'exists:workplaces,id'],
+        ]);
+
+        $personalWorkplace = Workplace::findOrFail($validated['personal_workspace_id']);
+        if ($personalWorkplace->user_id !== Auth::id()) {
+            abort(403, 'You do not own this workspace.');
+        }
+
+        UserWorkspacePreference::updateOrCreate(
+            ['user_id' => Auth::id(), 'shared_workspace_id' => $shared_workplace_id],
+            ['personal_workspace_id' => $validated['personal_workspace_id']]
+        );
+
+        return Redirect::back()->with('status', [
+            'code'   => 200,
+            'status' => 'Workspace preference saved.',
+        ]);
     }
 
     public function revokeWorkplacePermissionTo( Request $request, $id ) {

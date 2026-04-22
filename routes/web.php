@@ -23,6 +23,25 @@ Route::get('/workplace', function(){
 
 Route::middleware('auth')->group(function() {
     Route::get('/', function( Request $request ) {
+        $workplace = Auth::user()->workplace;
+
+        if ($workplace?->is_shareable && $request->query('resume_board_id')) {
+            $preference = \App\Models\UserWorkspacePreference::where('user_id', Auth::id())
+                ->where('shared_workspace_id', $workplace->id)
+                ->first();
+            $personalWorkplace = $preference
+                ? \App\Models\Workplace::find($preference->personal_workspace_id)
+                : Auth::user()->workplaces()->where('is_shareable', false)->first();
+            if ($personalWorkplace) {
+                session()->put('workplace', $personalWorkplace->id);
+                $workplace = $personalWorkplace;
+            }
+        }
+
+        if ($workplace?->is_shareable) {
+            return \Illuminate\Support\Facades\Redirect::route('boards.index');
+        }
+
         $workplaces = Auth::user()->workplaces;
         $sharedWorkplaces = Auth::user()->sharedWorkplaces();
 
@@ -57,6 +76,7 @@ Route::get('/landing', fn () => Inertia::render('Landing'))->name('landing');
 
 Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set')->middleware([ 'auth' ]);
 Route::post('/workplace/new', [WorkplaceController::class, 'create'])->name('workplace.create');
+Route::post('/workplace/preference/{shared_workplace_id}', [WorkplaceController::class, 'saveWorkspacePreference'])->name('workplace.preference')->middleware(['auth']);
 
 Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
     Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');

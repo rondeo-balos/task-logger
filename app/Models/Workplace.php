@@ -9,7 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Workplace extends Model {
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'is_shareable'];
+
+    protected function casts(): array {
+        return [
+            'is_shareable' => 'boolean',
+        ];
+    }
 
     protected static function booted() {
         static::creating(function ($model) {
