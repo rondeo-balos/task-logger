@@ -135,6 +135,28 @@ class WorkplaceController extends Controller {
         return Redirect::back();
     }
 
+    public function archive( Request $request, Workplace $workplace ) {
+        if ($workplace->user_id !== Auth::id()) {
+            abort(403, 'Only the owner can archive this workspace.');
+        }
+        $workplace->update(['archived_at' => now()]);
+        return Redirect::back()->with('status', [
+            'code'   => 200,
+            'status' => 'Workspace archived.',
+        ]);
+    }
+
+    public function unarchive( Request $request, Workplace $workplace ) {
+        if ($workplace->user_id !== Auth::id()) {
+            abort(403, 'Only the owner can unarchive this workspace.');
+        }
+        $workplace->update(['archived_at' => null]);
+        return Redirect::back()->with('status', [
+            'code'   => 200,
+            'status' => 'Workspace unarchived.',
+        ]);
+    }
+
     public function saveWorkspacePreference( Request $request, $shared_workplace_id ) {
         $validated = $request->validate([
             'personal_workspace_id' => ['required', 'exists:workplaces,id'],

@@ -77,6 +77,8 @@ Route::get('/landing', fn () => Inertia::render('Landing'))->name('landing');
 Route::get('/workplace/set/{id}', [WorkplaceController::class, 'set'])->name('workplace.set')->middleware([ 'auth' ]);
 Route::post('/workplace/new', [WorkplaceController::class, 'create'])->name('workplace.create');
 Route::post('/workplace/preference/{shared_workplace_id}', [WorkplaceController::class, 'saveWorkspacePreference'])->name('workplace.preference')->middleware(['auth']);
+Route::patch('/workplace/{workplace}/archive', [WorkplaceController::class, 'archive'])->name('workplace.archive')->middleware(['auth']);
+Route::patch('/workplace/{workplace}/unarchive', [WorkplaceController::class, 'unarchive'])->name('workplace.unarchive')->middleware(['auth']);
 
 Route::middleware(['auth', CheckWorkplace::class.':write'])->group(function() {
     Route::get('/workplace/edit/{id}', [WorkplaceController::class, 'edit'])->name('workplace.edit');
